@@ -1,0 +1,50 @@
+:root {
+  --color1: black;
+  --color2: rgb(23, 167, 25);
+  --color3: rgba(23, 167, 25, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color1);
+  color: var(--color2);
+}
+
+button {
+  padding: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  &:hover {
+    background-color: var(--color3);
+  }
+}
+
+input {
+  padding: 5px;
+}
+
+button,
+input {
+  height: 40px;
+  border: 1px solid var(--color2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+svg.icon {
+  width: 20px;
+  height: 20px;
+  background-color: transparent;
+  color: var(--color2);
+}
+
+.hidden {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}

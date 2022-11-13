@@ -1,0 +1,13 @@
+
+
+.clientEntry {
+  cursor: pointer;
+
+  &:nth-child(even) {
+    background-color: var(--color3);
+  }
+
+  &.selected {
+    border: 1px solid var(--color2);
+  }
+}

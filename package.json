@@ -1,0 +1,43 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.svg src/**/*.pem dist/",
+    "start": "npx tsc && rollup -c && npm run copy-files && node dist/index.js",
+    "lint": "eslint --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^14.1.0",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "@types/jsonwebtoken": "^8.5.9",
+    "@types/node": "^18.7.23",
+    "@types/uuid": "^8.3.4",
+    "@types/websocket": "^1.0.5",
+    "@types/ws": "^8.5.3",
+    "copyfiles": "^2.4.1",
+    "nodemon": "^2.0.20",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.79.1",
+    "rollup-plugin-scss": "^3.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "sass": "^1.55.0",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.6.5",
+    "uuid": "^9.0.0",
+    "ws": "^8.9.0"
+  }
+}

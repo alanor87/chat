@@ -1,0 +1,47 @@
+@import "./messages";
+@import "./clients";
+@import "./notifications";
+@import "./modals";
+
+.main {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+.sideBar {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid var(--color2);
+
+  .chatOptions {
+    width: 100%;
+    align-self: flex-end;
+  }
+}
+
+.chat-history {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid var(--color2);
+  flex-grow: 1;
+
+  .userInput {
+    display: flex;
+  }
+
+  .userInput input {
+    width: 80%;
+  }
+
+  .userInput button {
+    flex-grow: 1;
+  }
+}

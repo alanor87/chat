@@ -1,0 +1,14 @@
+.newClientNotificationsList {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: fit-content;
+  height: auto;
+  z-index: 1;
+}
+
+.newClientNotification {
+  width: 200px;
+  max-width: 300px;
+  background-color: var(--color3);
+}

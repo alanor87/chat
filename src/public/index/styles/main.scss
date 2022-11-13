@@ -1,0 +1,38 @@
+@import '../../commonStyles.scss';
+
+.startPageWrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    input {
+        width: 100%;
+    }
+}
+
+.startButtonsWrapper {
+    width: 500px;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+
+    button {
+        padding: 10px;
+    }
+}
+
+.buttonsWrapper {
+    display: flex;
+    justify-content: space-around;
+}
+
+.createChatRoomForm, .joinChatRoomForm {
+    width: 400px;
+    padding: 10px;
+
+    & > :not(:last-child) {
+        margin-bottom: 10px;
+    }
+}

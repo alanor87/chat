@@ -1,0 +1,25 @@
+.messagesList {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 5px;
+  flex-basis: 80%;
+}
+
+.message {
+  width: fit-content;
+  max-width: 80%;
+  padding: 5px;
+  word-break: break-all;
+  border: 1px solid var(--color1);
+
+  &.outcoming {
+    align-self: flex-end;
+  }
+  &.incoming {
+    align-self: flex-start;
+  }
+  &.welcome {
+    align-self: center;
+  }
+}

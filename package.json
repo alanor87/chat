@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.svg src/**/*.pem dist/",
-    "start": "npx tsc && rollup -c && npm run copy-files && node dist/index.js",
+    "start": "tsc && rollup -c && npm run copy-files && node dist/index.js",
     "lint": "eslint --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -99,7 +99,6 @@ function wsClientRouter(message) {
     switch (parsedWsMessage.method) {
         // Connection is automatically closed by server in case of auth failure, logging out.
         case "client_init": {
-            console.log("Socket connection : " + parsedWsMessage.data.result);
             var result = parsedWsMessage.data.result;
             if (result === "error")
                 logout("Server closed the onnection.");
@@ -146,7 +145,6 @@ function inviteLinkCopy() {
     window.navigator.clipboard.writeText(window.location.origin + "/?chatRoomId=" + sessionAuthData.chatRoomId);
 }
 function sessionStorageInit() {
-    console.log("sessionStorageInit");
     Object.keys(sessionAuthData).forEach(function (item) {
         sessionAuthData[item] = sessionStorage.getItem(item);
         if (!sessionAuthData[item])
@@ -154,7 +152,6 @@ function sessionStorageInit() {
     });
 }
 function eventListenersInit() {
-    console.log("eventListenersInit");
     refs.sendMessageButton.addEventListener("click", sendMessage);
     refs.inviteLinkCopyButton.addEventListener("click", inviteLinkCopy);
     window.addEventListener("click", function (e) {
@@ -167,7 +164,6 @@ function eventListenersInit() {
     });
 }
 function wsClientInit() {
-    console.log("wsClientInit");
     wsClient = new WebSocket("ws://" + window.location.hostname + ':8081');
     // Sending the auth data on opening the socket connection.
     wsClient.onopen = function (e) {

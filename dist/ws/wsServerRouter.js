@@ -40,7 +40,6 @@ function wsServerRouter(currentConnection, wsMessage) {
                 currentConnection.send(s(replySuccess));
             }
             catch (e) {
-                console.log("client_init error");
                 const replyError = s({
                     method: "client_init",
                     data: { result: "error" },
@@ -64,7 +63,6 @@ function wsServerRouter(currentConnection, wsMessage) {
                     data: { message, fromClientId },
                 };
                 chatRoom.clients.forEach(({ currentConnection }) => {
-                    console.log(currentConnection);
                     if (!currentConnection)
                         return;
                     currentConnection.send(s(newBroadcastMessage));

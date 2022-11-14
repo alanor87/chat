@@ -10,7 +10,6 @@ class ChatRoom {
     }
     addClientConnection(clientId, connection) {
         const client = this.getClientById(clientId);
-        console.log('Adding client connection');
         client.addConnection(connection);
     }
     setAdminId(id) {

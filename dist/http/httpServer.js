@@ -63,7 +63,6 @@ export const httpServer = createServer((req, res) => {
     }
 });
 export function httpServerInit(PORT = 8080) {
-    console.log('httpServerInit');
     httpServer.listen(PORT, () => {
         console.log("http server is running on port ", PORT);
     });

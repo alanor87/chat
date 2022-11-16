@@ -1,7 +1,7 @@
 import { WebSocketServer } from "ws";
 import { wsServerRouter } from "./wsServerRouter.js";
 export const clients = [];
-export function wsServerInit(PORT = 8081) {
+export function wsServerInit(PORT) {
     console.log('wsServerInit');
     const wsServer = new WebSocketServer({ port: PORT }, () => {
         console.log("web socket server is running on port ", PORT);

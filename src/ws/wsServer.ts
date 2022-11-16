@@ -3,7 +3,7 @@ import { WsClinetsObjectType } from "../commonTypes/WsTypes.js";
 import { wsServerRouter } from "./wsServerRouter.js";
 export const clients: WsClinetsObjectType[] = [];
 
-export function wsServerInit(PORT: number = 8081) {
+export function wsServerInit(PORT: number) {
   console.log('wsServerInit')
   const wsServer = new WebSocketServer({ port: PORT }, () => {
     console.log("web socket server is running on port ", PORT);

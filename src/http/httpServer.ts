@@ -6,6 +6,7 @@ import url from "url";
 import { RequestDataType } from "../commonTypes/HttpServerTypes.js";
 import { jsonParse as p } from "../helpers/jsonParse.js";
 import { router } from "./httpRouter.js";
+import { wsServerInit } from "../ws/wsServer.js";
 
 // const httpsOptions = {
 //   key: fs.readFileSync(
@@ -72,7 +73,10 @@ export const httpServer = createServer((req, res) => {
 });
 
 export function httpServerInit(PORT: number) {
+  console.log('Http server init.')
   httpServer.listen(PORT, () => {
     console.log("http server is running on port ", PORT);
   });
 }
+
+

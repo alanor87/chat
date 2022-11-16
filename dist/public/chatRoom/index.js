@@ -164,7 +164,7 @@ function eventListenersInit() {
     });
 }
 function wsClientInit() {
-    wsClient = new WebSocket("ws://" + window.location.hostname + ':8081');
+    wsClient = new WebSocket("ws://" + window.location.hostname + ':8080');
     // Sending the auth data on opening the socket connection.
     wsClient.onopen = function (e) {
         return wsClient.send(jsonStringify({ method: "client_init", data: sessionAuthData }));

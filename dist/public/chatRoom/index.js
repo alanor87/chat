@@ -135,11 +135,20 @@ function sendMessage() {
     var messageText = refs.userInput.value;
     var newClientMessage = {
         method: "new_message",
-        data: { chatRoomId: sessionAuthData.chatRoomId, fromClientId: sessionAuthData.clientId, message: messageText },
+        data: {
+            chatRoomId: sessionAuthData.chatRoomId,
+            fromClientId: sessionAuthData.clientId,
+            message: messageText,
+        },
     };
     var message = jsonStringify(newClientMessage);
     refs.userInput.value = "";
     wsClient.send(message);
+}
+function onInputEnterPress(e) {
+    console.log(e);
+    if (e.key === "Enter")
+        sendMessage();
 }
 function inviteLinkCopy() {
     window.navigator.clipboard.writeText(window.location.origin + "/?chatRoomId=" + sessionAuthData.chatRoomId);
@@ -152,6 +161,7 @@ function sessionStorageInit() {
     });
 }
 function eventListenersInit() {
+    refs.userInput.addEventListener("keypress", onInputEnterPress);
     refs.sendMessageButton.addEventListener("click", sendMessage);
     refs.inviteLinkCopyButton.addEventListener("click", inviteLinkCopy);
     window.addEventListener("click", function (e) {
@@ -164,7 +174,7 @@ function eventListenersInit() {
     });
 }
 function wsClientInit() {
-    wsClient = new WebSocket("ws://" + window.location.hostname + ':8080');
+    wsClient = new WebSocket("wss://" + window.location.hostname + ":8080");
     // Sending the auth data on opening the socket connection.
     wsClient.onopen = function (e) {
         return wsClient.send(jsonStringify({ method: "client_init", data: sessionAuthData }));

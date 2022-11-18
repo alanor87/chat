@@ -1,4 +1,4 @@
-import { createServer, Server } from "http";
+import { createServer } from "https";
 import path from "path";
 import { StringDecoder } from "string_decoder";
 import fs from "fs";
@@ -6,18 +6,17 @@ import url from "url";
 import { RequestDataType } from "../commonTypes/HttpServerTypes.js";
 import { jsonParse as p } from "../helpers/jsonParse.js";
 import { router } from "./httpRouter.js";
-import { wsServerInit } from "../ws/wsServer.js";
 
-// const httpsOptions = {
-//   key: fs.readFileSync(
-//     path.join(process.cwd(), "/dist/ssl/key.pem")
-//   ),
-//   cert: fs.readFileSync(
-//     path.join(process.cwd(), "/dist/ssl/cert.pem")
-//   ),
-// };
+const httpsOptions = {
+  key: fs.readFileSync(
+    path.join(process.cwd(), "/dist/ssl/key.pem")
+  ),
+  cert: fs.readFileSync(
+    path.join(process.cwd(), "/dist/ssl/cert.pem")
+  ),
+};
 
-export const httpServer = createServer((req, res) => {
+export const httpServer = createServer(httpsOptions, (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", process.env.BASE_URL as string);
   const decode = new StringDecoder("utf-8");
   let buffer = "";

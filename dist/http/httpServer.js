@@ -1,4 +1,5 @@
-import { createServer } from "http";
+import { createServer as createHttpServer, } from "http";
+import { createServer as createHttpsServer } from "https";
 import path from "path";
 import { StringDecoder } from "string_decoder";
 import fs from "fs";
@@ -6,12 +7,12 @@ import url from "url";
 import { jsonParse as p } from "../helpers/jsonParse.js";
 import { router } from "./httpRouter.js";
 const PORT = process.env.PORT || 8080;
-console.log('PORT http : ', PORT);
+console.log("PORT http : ", PORT);
 const httpsOptions = {
     key: fs.readFileSync(path.join(process.cwd(), "/dist/ssl/key.pem")),
     cert: fs.readFileSync(path.join(process.cwd(), "/dist/ssl/cert.pem")),
 };
-export const httpServer = createServer((req, res) => {
+function unifiedServer(req, res) {
     res.setHeader("Access-Control-Allow-Origin", process.env.BASE_URL);
     const decode = new StringDecoder("utf-8");
     let buffer = "";
@@ -61,10 +62,13 @@ export const httpServer = createServer((req, res) => {
         res.writeHead(500);
         res.end("Something went wrong! " + e.message);
     }
-});
+}
+const httpServer = createHttpServer(unifiedServer);
+const httpsServer = createHttpsServer(httpsOptions, unifiedServer);
+export const server = process.env.ENVIRONMENT === "production" ? httpServer : httpsServer;
 export function httpServerInit() {
-    console.log('Http server init.');
-    httpServer.listen(PORT, () => {
+    console.log("Http server init.");
+    server.listen(PORT, () => {
         console.log("http server is running on port ", PORT);
     });
 }

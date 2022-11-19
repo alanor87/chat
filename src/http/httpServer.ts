@@ -1,4 +1,4 @@
-import { createServer } from "https";
+import { createServer } from "http";
 import path from "path";
 import { StringDecoder } from "string_decoder";
 import fs from "fs";
@@ -6,6 +6,9 @@ import url from "url";
 import { RequestDataType } from "../commonTypes/HttpServerTypes.js";
 import { jsonParse as p } from "../helpers/jsonParse.js";
 import { router } from "./httpRouter.js";
+
+const PORT = process.env.PORT || 8080;
+console.log('PORT http : ', PORT);
 
 const httpsOptions = {
   key: fs.readFileSync(
@@ -16,7 +19,7 @@ const httpsOptions = {
   ),
 };
 
-export const httpServer = createServer(httpsOptions, (req, res) => {
+export const httpServer = createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", process.env.BASE_URL as string);
   const decode = new StringDecoder("utf-8");
   let buffer = "";
@@ -71,7 +74,7 @@ export const httpServer = createServer(httpsOptions, (req, res) => {
   }
 });
 
-export function httpServerInit(PORT: number) {
+export function httpServerInit() {
   console.log('Http server init.')
   httpServer.listen(PORT, () => {
     console.log("http server is running on port ", PORT);

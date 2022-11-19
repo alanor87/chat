@@ -73,7 +73,8 @@ function eventListenersInit() {
 }
 
 function wsClientInit() {
-  wsClient = new WebSocket("wss://" + window.location.hostname + ":8080");
+  console.log(window.location.hostname);
+  wsClient = new WebSocket("wss://" + window.location.origin);
 
   // Sending the auth data on opening the socket connection.
   wsClient.onopen = (e) =>

@@ -1,4 +1,4 @@
-import { createServer } from "https";
+import { createServer } from "http";
 import path from "path";
 import { StringDecoder } from "string_decoder";
 import fs from "fs";
@@ -16,7 +16,7 @@ const httpsOptions = {
   ),
 };
 
-export const httpServer = createServer(httpsOptions, (req, res) => {
+export const httpServer = createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", process.env.BASE_URL as string);
   const decode = new StringDecoder("utf-8");
   let buffer = "";

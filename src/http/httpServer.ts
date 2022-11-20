@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import {
   createServer as createHttpServer,
   IncomingMessage,
@@ -12,8 +13,11 @@ import { RequestDataType } from "../commonTypes/HttpServerTypes.js";
 import { jsonParse as p } from "../helpers/jsonParse.js";
 import { router } from "./httpRouter.js";
 
-const PORT = process.env.PORT || 8080;
-console.log("PORT http : ", PORT);
+dotenv.config();
+
+const {PORT, ENVIRONMENT} = process.env;
+console.log("PORT: ", PORT);
+console.log("ENVIRONMENT: ", ENVIRONMENT);
 
 const httpsOptions = {
   key: fs.readFileSync(path.join(process.cwd(), "/dist/ssl/key.pem")),

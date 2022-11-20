@@ -72,6 +72,9 @@ function wsServerRouter(currentConnection, wsMessage) {
                 break;
             }
         }
+        case "ping": {
+            return;
+        }
     }
 }
 export { wsServerRouter };

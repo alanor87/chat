@@ -7,6 +7,18 @@ import { WsMessageType } from "../../../commonTypes/WsTypes.js";
 
 let selectedRecipientId: string;
 let wsClient: WebSocket;
+let pingIntervalId;
+
+function startPing() {
+  pingIntervalId = setInterval(() => {
+    if (wsClient.readyState == wsClient.OPEN)
+      wsClient.send(s({ method: "ping", data: {} }));
+  }, 10000);
+}
+
+function stopPing() {
+  clearInterval(pingIntervalId);
+}
 
 function sendMessage() {
   const messageText = refs.userInput!.value;
@@ -71,19 +83,22 @@ function eventListenersInit() {
 
 function wsClientInit() {
   console.log(window.location.hostname);
-  
-  wsClient = new WebSocket("wss://" + window.location.host);
 
+  wsClient = new WebSocket("wss://" + window.location.host);
   // Sending the auth data on opening the socket connection.
   wsClient.onopen = (e) =>
     wsClient.send(s({ method: "client_init_request", data: sessionAuthData }));
+  startPing();
 
   // Incoming messages are being handled depending on their 'method' field in a dedicated router.
   wsClient.onmessage = (e) => {
     wsClientRouter(e.data);
   };
 
-  wsClient.onclose = () => console.log("Socket connection closed.");
+  wsClient.onclose = () => {
+    stopPing();
+    console.log("Socket connection closed.");
+  };
 }
 
 // Sending the auth data on opening the page load.

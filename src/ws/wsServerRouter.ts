@@ -28,20 +28,18 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
           data: { result: "success" },
         };
 
-        const newClientBroadcastMessage: WsMessageType =
-          {
-            method: "new_client",
-            data: { nickname },
-          };
+        const newClientBroadcastMessage: WsMessageType = {
+          method: "new_client",
+          data: { nickname },
+        };
 
-        const newClientWelcomeMessage: WsMessageType =
-          {
-            method: "welcome_message",
-            data: {
-              message:
-                "Welcome, " + nickname + ". Your id is : " + clientId + ".",
-            },
-          };
+        const newClientWelcomeMessage: WsMessageType = {
+          method: "welcome_message",
+          data: {
+            message:
+              "Welcome, " + nickname + ". Your id is : " + clientId + ".",
+          },
+        };
 
         chatRoom!.getAllClientConnections().forEach((connection) => {
           if (connection) connection.send(s(newClientBroadcastMessage));
@@ -69,11 +67,10 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
         const chatRoom = getChatRoomById(chatRoomId);
         if (!chatRoom) throw Error("Chat room does not exist");
 
-        const newBroadcastMessage: WsMessageType =
-          {
-            method: "new_message_broadcast",
-            data: { message, fromClientId },
-          };
+        const newBroadcastMessage: WsMessageType = {
+          method: "new_message_broadcast",
+          data: { message, fromClientId },
+        };
 
         chatRoom.clients.forEach(({ currentConnection }) => {
           if (!currentConnection) return;
@@ -83,6 +80,9 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
       } finally {
         break;
       }
+    }
+    case "ping": {
+      return;
     }
   }
 }

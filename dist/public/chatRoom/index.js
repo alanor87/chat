@@ -128,6 +128,16 @@ function jsonStringify(object) {
 }
 
 var wsClient;
+var pingIntervalId;
+function startPing() {
+    pingIntervalId = setInterval(function () {
+        if (wsClient.readyState == wsClient.OPEN)
+            wsClient.send(jsonStringify({ method: "ping", data: {} }));
+    }, 1000);
+}
+function stopPing() {
+    clearInterval(pingIntervalId);
+}
 function sendMessage() {
     var messageText = refs.userInput.value;
     var newClientMessage = {
@@ -177,11 +187,15 @@ function wsClientInit() {
     wsClient.onopen = function (e) {
         return wsClient.send(jsonStringify({ method: "client_init_request", data: sessionAuthData }));
     };
+    startPing();
     // Incoming messages are being handled depending on their 'method' field in a dedicated router.
     wsClient.onmessage = function (e) {
         wsClientRouter(e.data);
     };
-    wsClient.onclose = function () { return console.log("Socket connection closed."); };
+    wsClient.onclose = function () {
+        stopPing();
+        console.log("Socket connection closed.");
+    };
 }
 // Sending the auth data on opening the page load.
 function chatRoomAuthorization() {

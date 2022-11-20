@@ -6,6 +6,7 @@ type WsClinetsObjectType = {
 };
 
 type WsMethodsType =
+  | "ping"
   | "client_init"
   | "welcome_message"
   | "new_message"
@@ -18,7 +19,8 @@ type WsMessageType =
   | NewClientWelcomeWsMessageType
   | NewCLientBroadcastWsMessageType
   | ClientNewMessageWsMessageType
-  | NewMessageBroadcastWsMessageType;
+  | NewMessageBroadcastWsMessageType
+  | PingMessageType;
 
 // Messages types.
 type ClientInitReqWsMessageType = {
@@ -49,6 +51,10 @@ type ClientNewMessageWsMessageType = {
 type NewMessageBroadcastWsMessageType = {
   method: "new_message_broadcast";
   data: { message: string; fromClientId: string; toClientId?: string };
+};
+type PingMessageType = {
+  method: "ping";
+  data: { };
 };
 
 export { WsClinetsObjectType, WsMethodsType, WsMessageType };

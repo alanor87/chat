@@ -1,8 +1,5 @@
-import * as dotenv from 'dotenv';
-import {wsServerInit} from './ws/wsServer.js';
-import {httpServerInit} from './http/httpServer.js';
-
-dotenv.config();
+import { wsServerInit } from "./ws/wsServer.js";
+import { httpServerInit } from "./http/httpServer.js";
 
 httpServerInit();
 wsServerInit();

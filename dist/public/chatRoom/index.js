@@ -105,7 +105,7 @@ function wsClientRouter(message) {
             break;
         }
         case "new_message_broadcast": {
-            var _a = parsedWsMessage.data, fromClientId = _a.fromClientId, message_1 = _a.message;
+            var _a = parsedWsMessage.data, fromClientId = _a.fromClientId; _a.toClientId; var message_1 = _a.message;
             var messageType = fromClientId === sessionAuthData.clientId ? "outcoming" : "incoming";
             createMessageElement(messageType, message_1);
             break;

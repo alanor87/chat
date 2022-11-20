@@ -8,10 +8,9 @@ function wsServerRouter(currentConnection, wsMessage) {
     switch (method) {
         // The first message after the handshake that client sends to the server.
         // Includes chat room id, client id and token to check rights to access.
-        case "client_init": {
+        case "client_init_request": {
             try {
-                const { data } = parsedWsMessage;
-                const { chatRoomId, clientId, token } = data;
+                const { chatRoomId, clientId, token } = parsedWsMessage.data;
                 clientDataValidation(chatRoomId, clientId, token);
                 // Client validation success, presuming that room and client exist -  and the token is correct.
                 const chatRoom = getChatRoomById(chatRoomId);
@@ -24,7 +23,7 @@ function wsServerRouter(currentConnection, wsMessage) {
                 };
                 const newClientBroadcastMessage = {
                     method: "new_client",
-                    data: { clientId },
+                    data: { nickname },
                 };
                 const newClientWelcomeMessage = {
                     method: "welcome_message",
@@ -53,13 +52,12 @@ function wsServerRouter(currentConnection, wsMessage) {
         }
         case "new_message": {
             try {
-                const { data } = parsedWsMessage;
-                const { chatRoomId, toClientId, fromClientId, message } = data;
+                const { chatRoomId, toClientId, fromClientId, message } = parsedWsMessage.data;
                 const chatRoom = getChatRoomById(chatRoomId);
                 if (!chatRoom)
                     throw Error("Chat room does not exist");
                 const newBroadcastMessage = {
-                    method: "new_message",
+                    method: "new_message_broadcast",
                     data: { message, fromClientId },
                 };
                 chatRoom.clients.forEach(({ currentConnection }) => {

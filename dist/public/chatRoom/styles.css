@@ -19,6 +19,10 @@ button {
 }
 button:hover {
   background-color: var(--color3);
+  cursor: pointer;
+}
+button:active {
+  background-color: var(--color1);
 }
 
 input {

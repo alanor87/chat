@@ -98,29 +98,26 @@ function wsClientRouter(message) {
     var parsedWsMessage = jsonParse(message);
     switch (parsedWsMessage.method) {
         // Connection is automatically closed by server in case of auth failure, logging out.
-        case "client_init": {
+        case "client_init_response": {
             var result = parsedWsMessage.data.result;
             if (result === "error")
                 logout("Server closed the onnection.");
             break;
         }
-        case "new_message": {
-            var data = parsedWsMessage.data;
-            var messageType = data.fromClientId === sessionAuthData.clientId
-                ? "outcoming"
-                : "incoming";
-            createMessageElement(messageType, data.message);
+        case "new_message_broadcast": {
+            var _a = parsedWsMessage.data, fromClientId = _a.fromClientId, message_1 = _a.message;
+            var messageType = fromClientId === sessionAuthData.clientId ? "outcoming" : "incoming";
+            createMessageElement(messageType, message_1);
             break;
         }
         case "welcome_message": {
-            createMessageElement("welcome", parsedWsMessage.data.message);
-            break;
-        }
-        case "message_status_changed": {
+            var message_2 = parsedWsMessage.data.message;
+            createMessageElement("welcome", message_2);
             break;
         }
         case "new_client": {
-            createNewClientNotification(parsedWsMessage.data.newClientId);
+            var nickname = parsedWsMessage.data.nickname;
+            createNewClientNotification(nickname);
             break;
         }
     }
@@ -178,7 +175,7 @@ function wsClientInit() {
     wsClient = new WebSocket("wss://" + window.location.host);
     // Sending the auth data on opening the socket connection.
     wsClient.onopen = function (e) {
-        return wsClient.send(jsonStringify({ method: "client_init", data: sessionAuthData }));
+        return wsClient.send(jsonStringify({ method: "client_init_request", data: sessionAuthData }));
     };
     // Incoming messages are being handled depending on their 'method' field in a dedicated router.
     wsClient.onmessage = function (e) {

@@ -6,7 +6,7 @@ export function wsServerInit() {
     const wsServer = new WebSocketServer({ server });
     // Connection - server gets the handshake from the client.
     wsServer.on("connection", (currentConnection, request) => {
-        console.log("WS connection req : ", request);
+        console.log("WS connection. Origin : ", request === null || request === void 0 ? void 0 : request.headers.origin);
         // Preventing XSRF attacks - at least to my understanding))
         if ((request === null || request === void 0 ? void 0 : request.headers.origin) !== process.env.BASE_URL) {
             console.log("Origin differs, closing connection");

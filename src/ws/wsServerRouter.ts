@@ -1,27 +1,19 @@
 import { WebSocket } from "ws";
-import {
-  WsMessageType,
-  NewCLientBroadcastDataType,
-  NewClientWelcomeDataType,
-  ClientNewMessageDataType,
-  NewMessageBroadcastDataType,
-} from "../commonTypes/WsTypes.js";
+import { WsMessageType } from "../commonTypes/WsTypes.js";
 import { jsonStringify as s } from "../helpers/jsonStringify.js";
 import { jsonParse as p } from "../helpers/jsonParse.js";
 import { clientDataValidation } from "../helpers/clientDataValidation.js";
 import { ChatRoom, getChatRoomById } from "../http/chatRoom.js";
-import { SessionAuthDataType } from "../commonTypes/ChatRoomTypes.js";
 
 function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
-  const parsedWsMessage: WsMessageType<any> = p(wsMessage);
+  const parsedWsMessage: WsMessageType = p(wsMessage);
   const { method } = parsedWsMessage;
   switch (method) {
     // The first message after the handshake that client sends to the server.
     // Includes chat room id, client id and token to check rights to access.
-    case "client_init": {
+    case "client_init_request": {
       try {
-        const { data } = parsedWsMessage as WsMessageType<SessionAuthDataType>;
-        const { chatRoomId, clientId, token } = data;
+        const { chatRoomId, clientId, token } = parsedWsMessage.data;
         clientDataValidation(chatRoomId, clientId, token);
 
         // Client validation success, presuming that room and client exist -  and the token is correct.
@@ -36,13 +28,13 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
           data: { result: "success" },
         };
 
-        const newClientBroadcastMessage: WsMessageType<NewCLientBroadcastDataType> =
+        const newClientBroadcastMessage: WsMessageType =
           {
             method: "new_client",
-            data: { clientId },
+            data: { nickname },
           };
 
-        const newClientWelcomeMessage: WsMessageType<NewClientWelcomeDataType> =
+        const newClientWelcomeMessage: WsMessageType =
           {
             method: "welcome_message",
             data: {
@@ -71,16 +63,15 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
 
     case "new_message": {
       try {
-        const { data } =
-          parsedWsMessage as WsMessageType<ClientNewMessageDataType>;
-        const { chatRoomId, toClientId, fromClientId, message } = data;
+        const { chatRoomId, toClientId, fromClientId, message } =
+          parsedWsMessage.data;
 
         const chatRoom = getChatRoomById(chatRoomId);
         if (!chatRoom) throw Error("Chat room does not exist");
 
-        const newBroadcastMessage: WsMessageType<NewMessageBroadcastDataType> =
+        const newBroadcastMessage: WsMessageType =
           {
-            method: "new_message",
+            method: "new_message_broadcast",
             data: { message, fromClientId },
           };
 

@@ -3,17 +3,14 @@ import { wsClientRouter } from "./wsClientRouter.js";
 import { jsonStringify as s } from "../../../helpers/jsonStringify.js";
 import { logout } from "../../../helpers/logout.js";
 import { sessionAuthData } from "./sessionAuthData.js";
-import {
-  ClientNewMessageDataType,
-  WsMessageType,
-} from "../../../commonTypes/WsTypes.js";
+import { WsMessageType } from "../../../commonTypes/WsTypes.js";
 
 let selectedRecipientId: string;
 let wsClient: WebSocket;
 
 function sendMessage() {
   const messageText = refs.userInput!.value;
-  const newClientMessage: WsMessageType<ClientNewMessageDataType> = {
+  const newClientMessage: WsMessageType = {
     method: "new_message",
     data: {
       chatRoomId: sessionAuthData.chatRoomId,
@@ -78,7 +75,7 @@ function wsClientInit() {
 
   // Sending the auth data on opening the socket connection.
   wsClient.onopen = (e) =>
-    wsClient.send(s({ method: "client_init", data: sessionAuthData }));
+    wsClient.send(s({ method: "client_init_request", data: sessionAuthData }));
 
   // Incoming messages are being handled depending on their 'method' field in a dedicated router.
   wsClient.onmessage = (e) => {

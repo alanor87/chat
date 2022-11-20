@@ -1,8 +1,4 @@
-import {
-  ClientInitDataType,
-  NewMessageBroadcastDataType,
-  WsMessageType,
-} from "../../../commonTypes/WsTypes.js";
+import { WsMessageType } from "../../../commonTypes/WsTypes.js";
 import { logout } from "../../../helpers/logout.js";
 import {
   createMessageElement,
@@ -12,35 +8,32 @@ import { jsonParse as p } from "../../../helpers/jsonParse.js";
 import { sessionAuthData } from "./sessionAuthData.js";
 
 export function wsClientRouter(message: string) {
-  const parsedWsMessage: WsMessageType<any> = p(message);
+  const parsedWsMessage: WsMessageType = p(message);
   switch (parsedWsMessage.method) {
     // Connection is automatically closed by server in case of auth failure, logging out.
-    case "client_init": {
-      const { result } = parsedWsMessage.data as ClientInitDataType;
+    case "client_init_response": {
+      const { result } = parsedWsMessage.data;
       if (result === "error") logout("Server closed the onnection.");
       break;
     }
 
-    case "new_message": {
-      const { data } =
-        parsedWsMessage as WsMessageType<NewMessageBroadcastDataType>;
+    case "new_message_broadcast": {
+      const { fromClientId, toClientId, message } = parsedWsMessage.data;
       const messageType =
-        data.fromClientId === sessionAuthData.clientId
-          ? "outcoming"
-          : "incoming";
-      createMessageElement(messageType, data.message);
+        fromClientId === sessionAuthData.clientId ? "outcoming" : "incoming";
+      createMessageElement(messageType, message);
       break;
     }
 
     case "welcome_message": {
-      createMessageElement("welcome", parsedWsMessage.data.message);
+      const { message } = parsedWsMessage.data;
+      createMessageElement("welcome", message);
       break;
     }
-    case "message_status_changed": {
-      break;
-    }
+
     case "new_client": {
-      createNewClientNotification(parsedWsMessage.data.newClientId);
+      const { nickname } = parsedWsMessage.data;
+      createNewClientNotification(nickname);
       break;
     }
     default: {

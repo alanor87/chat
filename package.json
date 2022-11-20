@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.svg src/**/*.pem dist/",
-    "build": "tsc && rollup -c && npm run copy-files && npm run start",
+    "dev": "tsc && rollup -c && npm run copy-files && npm run start",
     "start": "node dist/index.js",
     "lint": "eslint --fix"
   },

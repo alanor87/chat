@@ -133,7 +133,7 @@ function startPing() {
     pingIntervalId = setInterval(function () {
         if (wsClient.readyState == wsClient.OPEN)
             wsClient.send(jsonStringify({ method: "ping", data: {} }));
-    }, 1000);
+    }, 10000);
 }
 function stopPing() {
     clearInterval(pingIntervalId);

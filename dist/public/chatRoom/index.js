@@ -55,9 +55,11 @@ var refs = {
     userInput: document.querySelector("#userInput"),
     sendMessageButton: document.querySelector("#sendMessageButton"),
     messagesList: document.querySelector("#messagesList"),
+    sideBar: document.querySelector("#sideBar"),
     clientsList: document.querySelector("#clientsList"),
-    newClientNotificationsList: document.querySelector("#newClientNotificationsList"),
     inviteLinkCopyButton: document.querySelector("#inviteLinkCopyButton"),
+    clientsListButton: document.querySelector("#clientsListButton"),
+    notificationStackBlock: document.querySelector("#notificationStackBlock"),
 };
 
 function logout(message) {
@@ -67,19 +69,41 @@ function logout(message) {
     window.location.replace(window.location.origin);
 }
 
-function createMessageElement(messageType, messageText) {
+function createMessageElement(_a) {
+    var messageType = _a.messageType, message = _a.message; _a.fromClientId; var fromClientNickname = _a.fromClientNickname;
     var messageElement = document.createElement("div");
     messageElement.classList.add("message", messageType);
-    messageElement.innerText = messageText;
+    console.log(messageElement);
+    switch (messageType) {
+        case "welcome": {
+            messageElement.innerText = message;
+            break;
+        }
+        case "incoming": {
+            console.log("Incoming");
+            var from = document.createElement("span");
+            from.innerText = fromClientNickname || "anon";
+            messageElement.append(from, "  :  ", message);
+            break;
+        }
+        case "outcoming": {
+            var from = document.createElement("span");
+            from.innerText = "you : ";
+            messageElement.appendChild(from);
+            messageElement.innerText = message;
+            break;
+        }
+    }
+    console.log(messageElement);
     refs.messagesList.appendChild(messageElement);
 }
-function createNewClientNotification(newClient) {
+function createNotificationElement(notification) {
     var messageElement = document.createElement("div");
-    messageElement.classList.add("newClientNotification", newClient);
-    messageElement.innerText = newClient + " has joined.";
-    refs.newClientNotificationsList.appendChild(messageElement);
+    messageElement.classList.add("notification");
+    messageElement.innerText = notification;
+    refs.notificationStackBlock.appendChild(messageElement);
     setTimeout(function () {
-        refs.newClientNotificationsList.removeChild(messageElement);
+        refs.notificationStackBlock.removeChild(messageElement);
     }, 3000);
 }
 
@@ -88,10 +112,12 @@ function jsonParse(string) {
 }
 
 var _a;
-var sessionAuthData = (_a = {},
+var sessionData = (_a = {},
     _a["chatRoomId"] = "",
     _a["clientId"] = "",
     _a["token"] = "",
+    _a["nickname"] = "",
+    _a["isAdmin"] = "",
     _a);
 
 function wsClientRouter(message) {
@@ -99,25 +125,25 @@ function wsClientRouter(message) {
     switch (parsedWsMessage.method) {
         // Connection is automatically closed by server in case of auth failure, logging out.
         case "client_init_response": {
-            var result = parsedWsMessage.data.result;
+            var _a = parsedWsMessage.data, result = _a.result; _a.isAdmin;
             if (result === "error")
                 logout("Server closed the onnection.");
             break;
         }
         case "new_message_broadcast": {
-            var _a = parsedWsMessage.data, fromClientId = _a.fromClientId; _a.toClientId; var message_1 = _a.message;
-            var messageType = fromClientId === sessionAuthData.clientId ? "outcoming" : "incoming";
-            createMessageElement(messageType, message_1);
+            var _b = parsedWsMessage.data, fromClientId = _b.fromClientId, fromClientNickname = _b.fromClientNickname, toClientId = _b.toClientId, message_1 = _b.message;
+            var messageType = fromClientId === sessionData.clientId ? "outcoming" : "incoming";
+            createMessageElement({ messageType: messageType, message: message_1, fromClientId: fromClientId, fromClientNickname: fromClientNickname, toClientId: toClientId });
             break;
         }
         case "welcome_message": {
             var message_2 = parsedWsMessage.data.message;
-            createMessageElement("welcome", message_2);
+            createMessageElement({ messageType: "welcome", message: message_2 });
             break;
         }
         case "new_client": {
             var nickname = parsedWsMessage.data.nickname;
-            createNewClientNotification(nickname);
+            createNotificationElement(nickname + " has joined.");
             break;
         }
     }
@@ -127,6 +153,7 @@ function jsonStringify(object) {
     return JSON.stringify(object);
 }
 
+var selectedRecipientId;
 var wsClient;
 var pingIntervalId;
 function startPing() {
@@ -143,8 +170,8 @@ function sendMessage() {
     var newClientMessage = {
         method: "new_message",
         data: {
-            chatRoomId: sessionAuthData.chatRoomId,
-            fromClientId: sessionAuthData.clientId,
+            chatRoomId: sessionData.chatRoomId,
+            fromClientId: sessionData.clientId,
             message: messageText,
         },
     };
@@ -158,34 +185,52 @@ function onInputEnterPress(e) {
         sendMessage();
 }
 function inviteLinkCopy() {
-    window.navigator.clipboard.writeText(window.location.origin + "/?chatRoomId=" + sessionAuthData.chatRoomId);
+    window.navigator.clipboard.writeText(window.location.origin + "/?chatRoomId=" + sessionData.chatRoomId);
+    createNotificationElement("Chat room link is copied to clipboard.");
+}
+function toggleClientsList() {
+    refs.sideBar.classList.toggle("hidden");
 }
 function sessionStorageInit() {
-    Object.keys(sessionAuthData).forEach(function (item) {
-        sessionAuthData[item] = sessionStorage.getItem(item);
-        if (!sessionAuthData[item])
+    Object.keys(sessionData).forEach(function (item) {
+        sessionData[item] = sessionStorage.getItem(item);
+        if (!sessionData[item])
             throw Error(item + " data is missing. Logging out.");
     });
 }
+function adminComponentsInit() {
+    if (sessionData.isAdmin === "isAdmin") {
+        refs.inviteLinkCopyButton.classList.remove("hidden");
+    }
+}
 function eventListenersInit() {
-    refs.userInput.addEventListener("keypress", onInputEnterPress);
-    refs.sendMessageButton.addEventListener("click", sendMessage);
-    refs.inviteLinkCopyButton.addEventListener("click", inviteLinkCopy);
-    window.addEventListener("click", function (e) {
-        var chosenEntry = e.target;
-        var classList = chosenEntry.classList.value;
-        if (classList.includes("clientEntry")) {
-            chosenEntry.id;
-            chosenEntry.classList.add("selected");
-        }
-    });
+    try {
+        refs.userInput.addEventListener("keypress", onInputEnterPress);
+        refs.sendMessageButton.addEventListener("click", sendMessage);
+        refs.inviteLinkCopyButton.addEventListener("click", inviteLinkCopy);
+        refs.clientsListButton.addEventListener("click", toggleClientsList);
+        window.addEventListener("click", function (e) {
+            var chosenEntry = e.target;
+            var classList = chosenEntry.classList.value;
+            if (classList.includes("clientEntry")) {
+                selectedRecipientId = chosenEntry.id;
+                chosenEntry.classList.add("selected");
+            }
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
 }
 function wsClientInit() {
-    console.log(window.location.hostname);
     wsClient = new WebSocket("wss://" + window.location.host);
     // Sending the auth data on opening the socket connection.
+    var chatRoomId = sessionData.chatRoomId, clientId = sessionData.clientId, token = sessionData.token;
     wsClient.onopen = function (e) {
-        return wsClient.send(jsonStringify({ method: "client_init_request", data: sessionAuthData }));
+        return wsClient.send(jsonStringify({
+            method: "client_init_request",
+            data: { chatRoomId: chatRoomId, clientId: clientId, token: token },
+        }));
     };
     startPing();
     // Incoming messages are being handled depending on their 'method' field in a dedicated router.
@@ -194,20 +239,21 @@ function wsClientInit() {
     };
     wsClient.onclose = function () {
         stopPing();
-        console.log("Socket connection closed.");
+        logout("Socket connection closed.");
     };
 }
 // Sending the auth data on opening the page load.
 function chatRoomAuthorization() {
     return __awaiter(this, void 0, void 0, function () {
-        var headers, body, requestOptions, response, responceText;
+        var headers, chatRoomId, clientId, token, body, requestOptions, response, responceText, isAdmin;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     headers = new Headers({
-                        Authorization: "Bearer " + sessionAuthData.token,
+                        Authorization: "Bearer " + sessionData.token,
                     });
-                    body = jsonStringify(sessionAuthData);
+                    chatRoomId = sessionData.chatRoomId, clientId = sessionData.clientId, token = sessionData.token;
+                    body = jsonStringify({ chatRoomId: chatRoomId, clientId: clientId, token: token });
                     requestOptions = { method: "POST", headers: headers, body: body };
                     return [4 /*yield*/, fetch("api/chatRoomAuthorization", requestOptions)];
                 case 1:
@@ -217,7 +263,11 @@ function chatRoomAuthorization() {
                 case 2:
                     responceText = _a.sent();
                     throw new Error("Authorization failure. " + responceText);
-                case 3: return [2 /*return*/];
+                case 3: return [4 /*yield*/, response.json()];
+                case 4:
+                    isAdmin = (_a.sent()).isAdmin;
+                    sessionStorage.setItem('isAdmin', isAdmin);
+                    return [2 /*return*/];
             }
         });
     });
@@ -233,6 +283,7 @@ function chatRoomInit() {
                     return [4 /*yield*/, chatRoomAuthorization()];
                 case 1:
                     _a.sent();
+                    adminComponentsInit();
                     wsClientInit();
                     eventListenersInit();
                     return [3 /*break*/, 3];

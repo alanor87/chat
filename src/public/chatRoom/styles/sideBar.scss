@@ -1,0 +1,44 @@
+
+
+.sideBar {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid var(--color2);
+
+  @media screen and (max-width : '400px') {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: calc(100vw - 20px);
+    height: calc(100vh - 20px);
+
+  }
+}
+
+
+.sideBarCloseButton {
+  position: absolute;
+  width: fit-content;
+  top: 10px;
+  right: 10px;
+
+@media screen and (min-width: 400px) {
+  display: none;
+}
+
+}
+
+.clientEntry {
+  cursor: pointer;
+
+  &:nth-child(even) {
+    background-color: var(--color3);
+  }
+
+  &.selected {
+    border: 1px solid var(--color2);
+  }
+}

@@ -77,7 +77,25 @@ function jsonStringify(object) {
     return JSON.stringify(object);
 }
 
+var _a$1;
+var sessionData = (_a$1 = {},
+    _a$1["chatRoomId"] = "",
+    _a$1["clientId"] = "",
+    _a$1["token"] = "",
+    _a$1["nickname"] = "",
+    _a$1["isAdmin"] = "",
+    _a$1);
+
 var startButtonsWrapper = refs.startButtonsWrapper, createChatRoomButton = refs.createChatRoomButton, joinChatRoomButton = refs.joinChatRoomButton, _a = refs.createChatRoom, createNicknameInput = _a.createNicknameInput, createPasswordInput = _a.createPasswordInput, passwordInputRepeat = _a.passwordInputRepeat, createOkButton = _a.createOkButton, createCancelButton = _a.createCancelButton, createForm = _a.createForm, _b = refs.joinChatRoom, joinNicknameInput = _b.joinNicknameInput, joinPasswordInput = _b.joinPasswordInput, joinChatRoomIdInput = _b.joinChatRoomIdInput, joinOkButton = _b.joinOkButton, joinCancelButton = _b.joinCancelButton, joinForm = _b.joinForm;
+/** Check for the session data in case, if a logged client loads the index page - redirecting him to the chat room pages */
+function checkSessionData() {
+    console.log('Checking session data');
+    var sessionDataIsPresent = Object.keys(sessionData).every(function (key) {
+        return sessionStorage.getItem(key);
+    });
+    if (sessionDataIsPresent)
+        window.location.assign(window.location.origin + "/chatRoom");
+}
 function onInputEnterPress(e) {
     console.log(e);
     if (e.key === "Enter")
@@ -92,11 +110,15 @@ function showCreateForm() {
     startButtonsWrapper.classList.add("hidden");
     joinForm.classList.add("hidden");
     createForm.classList.remove("hidden");
+    createNicknameInput.focus();
 }
 function showJoinForm() {
     startButtonsWrapper.classList.add("hidden");
     createForm.classList.add("hidden");
     joinForm.classList.remove("hidden");
+    joinChatRoomIdInput.value
+        ? joinNicknameInput.focus()
+        : joinChatRoomIdInput.focus();
 }
 function inputsIntegrityCheck(formType) {
     switch (formType) {
@@ -117,6 +139,10 @@ function inputsIntegrityCheck(formType) {
         }
     }
 }
+/**
+ *  If client got to the page from the admin provided link, with chat room ID persent in query
+ * the chat room ID will be written to the corresponding joinChatRoom form input automatically
+ */
 function chatRoomAddressCheck() {
     var params = new URLSearchParams(window.location.search);
     var chatRoomId = params.get("chatRoomId");
@@ -128,12 +154,16 @@ function chatRoomAddressCheck() {
         joinChatRoomIdInput.disabled = true;
     }
 }
+/**
+ * After successful login attempt or chat room creation session data is written to sessionStorage.
+ */
 function writeLocalSessionData(_a) {
-    var chatRoomId = _a.chatRoomId, clientId = _a.clientId, nickname = _a.nickname, token = _a.token;
+    var chatRoomId = _a.chatRoomId, clientId = _a.clientId, nickname = _a.nickname, token = _a.token, isAdmin = _a.isAdmin;
     sessionStorage.setItem("chatRoomId", chatRoomId);
     sessionStorage.setItem("clientId", clientId);
     sessionStorage.setItem("nickname", nickname);
     sessionStorage.setItem("token", token);
+    sessionStorage.setItem("isAdmin", isAdmin || "");
 }
 function createChatRoomRequest() {
     return __awaiter(this, void 0, void 0, function () {
@@ -162,7 +192,6 @@ function createChatRoomRequest() {
                         chatRoomId: chatRoomId,
                         clientId: clientId,
                         nickname: nickname,
-                        isAdmin: true,
                         token: token,
                     });
                     window.location.assign(window.location.origin + "/chatRoom");
@@ -204,7 +233,7 @@ function joinChatRoomRequest() {
                         chatRoomId: chatRoomId,
                         clientId: clientId,
                         nickname: nickname,
-                        isAdmin: false,
+                        isAdmin: "notAdmin",
                         token: token,
                     });
                     window.location.assign(window.location.origin + "/chatRoom");
@@ -232,6 +261,7 @@ function eventListenersInit() {
     joinCancelButton.addEventListener("click", showStartButtonsWrapper);
 }
 window.onload = function () {
+    checkSessionData();
     eventListenersInit();
     chatRoomAddressCheck();
 };

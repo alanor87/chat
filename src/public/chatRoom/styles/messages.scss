@@ -18,6 +18,10 @@
   }
   &.incoming {
     align-self: flex-start;
+    & span {
+      cursor: pointer;
+      background-color: var(--color3);
+    }
   }
   &.welcome {
     align-self: center;

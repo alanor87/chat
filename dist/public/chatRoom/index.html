@@ -6,19 +6,43 @@
     <base href="{BASE_URL}" />
   </head>
   <body>
+    <!-- MAIN BLOCK -->
+
     <div class="main">
-      <div class="sideBar">
+      <!-- SIDE BAR -->
+
+      <div class="sideBar" id="sideBar">
+        <button
+            id="sideBarCloseButton"
+            class="sideBarCloseButton"
+            title="Close"
+          >
+            <svg class="icon">
+              <use href="public/img/sprite.svg#icon_close"></use>
+            </svg>
+          </button>
         <div id="clientsList" class="clientsList"></div>
+      </div>
+
+      <!-- SIDE BAR END -->
+
+      <div class="chat-history">
         <div class="chatOptions">
-          <button id="inviteLinkCopyButton" title="Copy invitation link">
+          <button
+            id="inviteLinkCopyButton"
+            class="hidden"
+            title="Copy invitation link"
+          >
             <svg class="icon">
               <use href="public/img/sprite.svg#icon_link"></use>
             </svg>
           </button>
+          <button id="clientsListButton" title="Show clients list">
+            <svg class="icon">
+              <use href="public/img/sprite.svg#icon_clients"></use>
+            </svg>
+          </button>
         </div>
-      </div>
-
-      <div class="chat-history">
         <div id="messagesList" class="messagesList"></div>
         <div class="userInput">
           <input id="userInput" type="text" />
@@ -26,10 +50,9 @@
         </div>
       </div>
     </div>
-    <div
-      id="newClientNotificationsList"
-      class="newClientNotificationsList"
-    ></div>
+    <!-- MAIN BLOCK END -->
+
+    <div id="notificationStackBlock" class="notificationStackBlock"></div>
     <script type="module" src="public/chatRoom/index.js"></script>
   </body>
 </html>

@@ -1,8 +1,6 @@
 import { WebSocketServer } from "ws";
 import { server } from "../http/httpServer.js";
-import { WsClinetsObjectType } from "../commonTypes/WsTypes.js";
 import { wsServerRouter } from "./wsServerRouter.js";
-export const clients: WsClinetsObjectType[] = [];
 
 export function wsServerInit() {
   const wsServer = new WebSocketServer({ server });

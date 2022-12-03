@@ -1,17 +1,15 @@
 import { SessionAuthDataType } from "../commonTypes/ChatRoomTypes.js";
 
-type WsClinetsObjectType = {
-  clientId: string;
-  currentConnection: any;
-};
-
-type WsMethodsType =
-  | "ping"
-  | "client_init"
+type WsMethods =
+  | "client_init_request"
+  | "client_init_response"
   | "welcome_message"
+  | "new_client"
   | "new_message"
-  | "message_status_changed"
-  | "new_client";
+  | "new_message_broadcast"
+  | "client_exit_request"
+  | "chat_room_termination"
+  | "ping";
 
 type WsMessageType =
   | ClientInitReqWsMessageType
@@ -20,7 +18,9 @@ type WsMessageType =
   | NewCLientBroadcastWsMessageType
   | ClientNewMessageWsMessageType
   | NewMessageBroadcastWsMessageType
-  | PingMessageType;
+  | NewMessagePrivateWsMessageType
+  | ClentExitRequestWsMessageType
+  | PingWsMessageType;
 
 // Messages types.
 type ClientInitReqWsMessageType = {
@@ -29,7 +29,7 @@ type ClientInitReqWsMessageType = {
 };
 type ClientInitResWsMessageType = {
   method: "client_init_response";
-  data: { result: string };
+  data: { result: string; isAdmin: string };
 };
 type NewClientWelcomeWsMessageType = {
   method: "welcome_message";
@@ -50,11 +50,35 @@ type ClientNewMessageWsMessageType = {
 };
 type NewMessageBroadcastWsMessageType = {
   method: "new_message_broadcast";
-  data: { message: string; fromClientId: string; toClientId?: string };
+  data: {
+    message: string;
+    fromClientId: string;
+    fromClientNickname: string;
+    toClientId?: string;
+  };
 };
-type PingMessageType = {
+type NewMessagePrivateWsMessageType = {
+  method: "new_message_private";
+  data: {
+    message: string;
+    fromClientId: string;
+    fromClientNickname: string;
+    toClientId: string;
+  };
+};
+type ClentExitRequestWsMessageType = {
+  method: "client_exit_request";
+  data: { chatRoomId: string; clientId: string };
+};
+type ChatRoomTerminationWsMessageType = {
+  method: "chat_room_termination";
+  data: {
+    message: string;
+  };
+};
+type PingWsMessageType = {
   method: "ping";
-  data: { };
+  data: {};
 };
 
-export { WsClinetsObjectType, WsMethodsType, WsMessageType };
+export { WsMessageType };

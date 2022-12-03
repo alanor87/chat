@@ -44,6 +44,9 @@ svg.icon {
   background-color: transparent;
   color: var(--color2);
 }
+svg.icon.active {
+  background-color: var(--color1);
+}
 
 .hidden {
   position: absolute;
@@ -53,115 +56,13 @@ svg.icon {
   pointer-events: none;
 }
 
-.messagesList {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 5px;
-  flex-basis: 80%;
-}
-
-.message {
-  width: fit-content;
-  max-width: 80%;
-  padding: 5px;
-  word-break: break-all;
-  border: 1px solid var(--color1);
-}
-.message.outcoming {
-  align-self: flex-end;
-}
-.message.incoming {
-  align-self: flex-start;
-}
-.message.welcome {
-  align-self: center;
-}
-
-.clientEntry {
-  cursor: pointer;
-}
-.clientEntry:nth-child(even) {
-  background-color: var(--color3);
-}
-.clientEntry.selected {
-  border: 1px solid var(--color2);
-}
-
-.newClientNotificationsList {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: fit-content;
-  height: auto;
-  z-index: 1;
-}
-
-.newClientNotification {
-  width: 200px;
-  max-width: 300px;
-  background-color: var(--color3);
-}
-
-.modal {
-  position: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-}
-
-.enterForm {
-  min-width: 400px;
-  padding: 10px;
-  min-width: 200px;
-  border: 1px solid var(--color2);
-}
-.enterForm > * {
-  margin-bottom: 10px;
-}
-.enterForm p {
-  text-align: center;
-}
-.enterForm input {
-  display: block;
-  padding: 15px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.enterForm p:nth-child(1),
-.enterForm input {
-  margin-bottom: 20px;
-}
-.enterForm button {
-  display: block;
-  width: fit-content;
-  margin: auto;
-}
-
 .main {
   width: 100%;
   height: 100vh;
   display: flex;
   gap: 10px;
   padding: 10px;
-}
-
-.sideBar {
-  width: 30%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 10px;
-  border: 1px solid var(--color2);
-}
-.sideBar .chatOptions {
-  width: 100%;
-  align-self: flex-end;
+  overflow: hidden;
 }
 
 .chat-history {
@@ -171,6 +72,12 @@ svg.icon {
   padding: 10px;
   border: 1px solid var(--color2);
   flex-grow: 1;
+}
+.chat-history .chatOptions {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  align-self: flex-start;
 }
 .chat-history .userInput {
   display: flex;
@@ -182,6 +89,36 @@ svg.icon {
   flex-grow: 1;
 }
 
+.sideBar {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid var(--color2);
+}
+@media screen and (max-width: 400px) {
+  .sideBar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: calc(100vw - 20px);
+    height: calc(100vh - 20px);
+  }
+}
+
+.sideBarCloseButton {
+  position: absolute;
+  width: fit-content;
+  top: 10px;
+  right: 10px;
+}
+@media screen and (min-width: 400px) {
+  .sideBarCloseButton {
+    display: none;
+  }
+}
+
 .clientEntry {
   cursor: pointer;
 }
@@ -212,6 +149,10 @@ svg.icon {
 }
 .message.incoming {
   align-self: flex-start;
+}
+.message.incoming span {
+  cursor: pointer;
+  background-color: var(--color3);
 }
 .message.welcome {
   align-self: center;
@@ -257,17 +198,25 @@ svg.icon {
   margin: auto;
 }
 
-.newClientNotificationsList {
+.notificationStackBlock {
   position: absolute;
   top: 0;
   right: 0;
   width: fit-content;
   height: auto;
+  padding: 10px;
+  background-color: transparent;
+  pointer-events: none;
   z-index: 1;
 }
 
-.newClientNotification {
+.notification {
   width: 200px;
   max-width: 300px;
+  padding: 5px;
+  white-space: break-spaces;
   background-color: var(--color3);
+}
+.notification:not(:last-child) {
+  margin-bottom: 10px;
 }

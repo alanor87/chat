@@ -7,9 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { clients } from "../ws/wsServer.js";
 import * as fs from "fs/promises";
-import { jsonStringify as s } from "../helpers/jsonStringify.js";
 import { staticAssetsInterpolation } from "../helpers/staticAssetsInterpolation.js";
 import { createChatRoom } from "./api/createChatRoom.js";
 import { joinChatRoom } from "./api/joinChatRoom.js";
@@ -72,7 +70,6 @@ export const router = {
     ["api/chatRoomAuthorization"]: chatRoomAuthorization,
     ["api/getClients"]: (res, reqData) => {
         res.setHeader("content-type", "application/json");
-        res.end(s(Object.keys(clients)));
     },
     notFound: (res) => {
         res.setHeader("code", 404);

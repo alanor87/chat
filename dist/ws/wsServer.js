@@ -1,7 +1,6 @@
 import { WebSocketServer } from "ws";
 import { server } from "../http/httpServer.js";
 import { wsServerRouter } from "./wsServerRouter.js";
-export const clients = [];
 export function wsServerInit() {
     const wsServer = new WebSocketServer({ server });
     // Connection - server gets the handshake from the client.

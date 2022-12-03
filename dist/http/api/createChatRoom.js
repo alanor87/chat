@@ -7,7 +7,7 @@ function createChatRoom(res, reqData) {
     const newClient = createChatClient(nickname);
     const { clientId, token } = newClient;
     const chatRoomId = "room" + uuidv4();
-    const newChatRoom = new ChatRoom(chatRoomId, clientId, password);
+    const newChatRoom = new ChatRoom(chatRoomId, clientId, token, password);
     newChatRoom.addClient(newClient);
     chatRoomsList.push(newChatRoom);
     const response = s({ chatRoomId, clientId, token });

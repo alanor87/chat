@@ -6,6 +6,7 @@ import {
   JoinChatRoomResponse,
   SessionDataType,
 } from "../../../commonTypes/ChatRoomTypes.js";
+import { sessionData } from "../../common/sessionData.js";
 
 const {
   startButtonsWrapper,
@@ -29,6 +30,16 @@ const {
   },
 } = refs;
 
+/** Check for the session data in case, if a logged client loads the index page - redirecting him to the chat room pages */
+function checkSessionData() {
+  console.log('Checking session data');
+  const sessionDataIsPresent = Object.keys(sessionData).every((key) =>
+    sessionStorage.getItem(key)
+  );
+  if (sessionDataIsPresent)
+    window.location.assign(window.location.origin + "/chatRoom");
+}
+
 function onInputEnterPress(e: any) {
   console.log(e);
   if (e.key === "Enter") createChatRoomRequest();
@@ -44,12 +55,16 @@ function showCreateForm() {
   startButtonsWrapper!.classList.add("hidden");
   joinForm!.classList.add("hidden");
   createForm!.classList.remove("hidden");
+  createNicknameInput!.focus();
 }
 
 function showJoinForm() {
   startButtonsWrapper!.classList.add("hidden");
   createForm!.classList.add("hidden");
   joinForm!.classList.remove("hidden");
+  joinChatRoomIdInput!.value
+    ? joinNicknameInput!.focus()
+    : joinChatRoomIdInput!.focus();
 }
 
 function inputsIntegrityCheck(formType: "create" | "join") {
@@ -70,6 +85,10 @@ function inputsIntegrityCheck(formType: "create" | "join") {
   }
 }
 
+/**
+ *  If client got to the page from the admin provided link, with chat room ID persent in query
+ * the chat room ID will be written to the corresponding joinChatRoom form input automatically
+ */
 function chatRoomAddressCheck() {
   const params: any = new URLSearchParams(window.location.search);
   const chatRoomId = params.get("chatRoomId");
@@ -82,16 +101,21 @@ function chatRoomAddressCheck() {
   }
 }
 
+/**
+ * After successful login attempt or chat room creation session data is written to sessionStorage.
+ */
 function writeLocalSessionData({
   chatRoomId,
   clientId,
   nickname,
   token,
+  isAdmin,
 }: SessionDataType) {
   sessionStorage.setItem("chatRoomId", chatRoomId);
   sessionStorage.setItem("clientId", clientId);
   sessionStorage.setItem("nickname", nickname);
   sessionStorage.setItem("token", token);
+  sessionStorage.setItem("isAdmin", isAdmin || "");
 }
 
 async function createChatRoomRequest() {
@@ -115,13 +139,10 @@ async function createChatRoomRequest() {
       chatRoomId,
       clientId,
       nickname,
-      isAdmin: true,
       token,
     });
 
-    window.location.assign(
-      window.location.origin + "/chatRoom"
-    );
+    window.location.assign(window.location.origin + "/chatRoom");
   } catch (e: any) {
     alert(e.message);
   }
@@ -149,13 +170,11 @@ async function joinChatRoomRequest() {
       chatRoomId,
       clientId,
       nickname,
-      isAdmin: false,
+      isAdmin: "notAdmin",
       token,
     });
 
-    window.location.assign(
-      window.location.origin + "/chatRoom"
-    );
+    window.location.assign(window.location.origin + "/chatRoom");
   } catch (e: any) {
     alert(e.message);
   }
@@ -177,6 +196,7 @@ function eventListenersInit() {
 }
 
 window.onload = () => {
+  checkSessionData();
   eventListenersInit();
   chatRoomAddressCheck();
 };

@@ -73,7 +73,6 @@ function unifiedServer(
           router["notFound"](res, reqData);
           return;
         }
-        console.log("Http request data : ", reqData);
         // Further processing of data depending on the route.
         router[path](res, reqData);
       });

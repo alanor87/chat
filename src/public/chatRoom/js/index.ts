@@ -2,12 +2,13 @@ import { refs } from "./refs.js";
 import { wsClientRouter } from "./wsClientRouter.js";
 import { jsonStringify as s } from "../../../helpers/jsonStringify.js";
 import { logout } from "../../../helpers/logout.js";
-import { sessionAuthData } from "./sessionAuthData.js";
+import { sessionData } from "../../common/sessionData.js";
 import { WsMessageType } from "../../../commonTypes/WsTypes.js";
+import { createNotificationElement } from "./componentsRender.js";
 
 let selectedRecipientId: string;
 let wsClient: WebSocket;
-let pingIntervalId;
+let pingIntervalId: any;
 
 function startPing() {
   pingIntervalId = setInterval(() => {
@@ -25,8 +26,8 @@ function sendMessage() {
   const newClientMessage: WsMessageType = {
     method: "new_message",
     data: {
-      chatRoomId: sessionAuthData.chatRoomId,
-      fromClientId: sessionAuthData.clientId,
+      chatRoomId: sessionData.chatRoomId,
+      fromClientId: sessionData.clientId,
       message: messageText,
     },
   };
@@ -42,8 +43,13 @@ function onInputEnterPress(e: any) {
 
 function inviteLinkCopy() {
   window.navigator.clipboard.writeText(
-    window.location.origin + "/?chatRoomId=" + sessionAuthData.chatRoomId
+    window.location.origin + "/?chatRoomId=" + sessionData.chatRoomId
   );
+  createNotificationElement("Chat room link is copied to clipboard.");
+}
+
+function toggleClientsList() {
+  refs.sideBar!.classList.toggle("hidden");
 }
 
 function setClientsList(clients: [string]) {
@@ -59,35 +65,52 @@ function setClientsList(clients: [string]) {
 }
 
 function sessionStorageInit() {
-  Object.keys(sessionAuthData).forEach((item) => {
-    sessionAuthData[item] = sessionStorage.getItem(item);
-    if (!sessionAuthData[item])
+  Object.keys(sessionData).forEach((item) => {
+    sessionData[item] = sessionStorage.getItem(item);
+    if (!sessionData[item])
       throw Error(item + " data is missing. Logging out.");
   });
 }
 
-function eventListenersInit() {
-  refs.userInput!.addEventListener("keypress", onInputEnterPress);
-  refs.sendMessageButton!.addEventListener("click", sendMessage);
-  refs.inviteLinkCopyButton!.addEventListener("click", inviteLinkCopy);
+function adminComponentsInit() {
+  if (sessionData.isAdmin === "isAdmin") {
+    refs.inviteLinkCopyButton!.classList.remove("hidden");
+  }
+}
 
-  window.addEventListener("click", (e) => {
-    const chosenEntry = e.target as HTMLDivElement;
-    const classList = chosenEntry.classList.value;
-    if (classList.includes("clientEntry")) {
-      selectedRecipientId = chosenEntry.id;
-      chosenEntry.classList.add("selected");
-    }
-  });
+function eventListenersInit() {
+  try {
+    refs.userInput!.addEventListener("keypress", onInputEnterPress);
+    refs.sendMessageButton!.addEventListener("click", sendMessage);
+    refs.inviteLinkCopyButton!.addEventListener("click", inviteLinkCopy);
+    refs.clientsListButton!.addEventListener("click", toggleClientsList);
+
+    window.addEventListener("click", (e) => {
+      const chosenEntry = e.target as HTMLDivElement;
+      const classList = chosenEntry.classList.value;
+      if (classList.includes("clientEntry")) {
+        selectedRecipientId = chosenEntry.id;
+        chosenEntry.classList.add("selected");
+      }
+    });
+  } catch (e: any) {
+    console.log(e);
+  }
 }
 
 function wsClientInit() {
-  console.log(window.location.hostname);
-
   wsClient = new WebSocket("wss://" + window.location.host);
   // Sending the auth data on opening the socket connection.
+  const { chatRoomId, clientId, token } = sessionData;
+
   wsClient.onopen = (e) =>
-    wsClient.send(s({ method: "client_init_request", data: sessionAuthData }));
+    wsClient.send(
+      s({
+        method: "client_init_request",
+        data: { chatRoomId, clientId, token },
+      })
+    );
+
   startPing();
 
   // Incoming messages are being handled depending on their 'method' field in a dedicated router.
@@ -97,29 +120,32 @@ function wsClientInit() {
 
   wsClient.onclose = () => {
     stopPing();
-    console.log("Socket connection closed.");
+    logout("Socket connection closed.");
   };
 }
 
 // Sending the auth data on opening the page load.
 async function chatRoomAuthorization() {
   const headers = new Headers({
-    Authorization: "Bearer " + sessionAuthData.token,
+    Authorization: "Bearer " + sessionData.token,
   });
-  const body = s(sessionAuthData);
+  const { chatRoomId, clientId, token } = sessionData;
+  const body = s({ chatRoomId, clientId, token });
   const requestOptions = { method: "POST", headers, body };
   const response = await fetch("api/chatRoomAuthorization", requestOptions);
-
   if (response.status === 401) {
     const responceText = await response.text();
     throw new Error("Authorization failure. " + responceText);
   }
+  const {isAdmin} = await response.json();
+  sessionStorage.setItem('isAdmin', isAdmin);
 }
 
 async function chatRoomInit() {
   try {
     sessionStorageInit();
     await chatRoomAuthorization();
+    adminComponentsInit();
     wsClientInit();
     eventListenersInit();
   } catch (e) {

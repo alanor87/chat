@@ -1,7 +1,5 @@
-import { clients } from "../ws/wsServer.js";
 import { RouterType } from "../commonTypes/HttpServerTypes.js";
 import * as fs from "fs/promises";
-import { jsonStringify as s } from "../helpers/jsonStringify.js";
 import { staticAssetsInterpolation } from "../helpers/staticAssetsInterpolation.js";
 import { createChatRoom } from "./api/createChatRoom.js";
 import { joinChatRoom } from "./api/joinChatRoom.js";
@@ -64,7 +62,6 @@ export const router: RouterType = {
 
   ["api/getClients"]: (res, reqData) => {
     res.setHeader("content-type", "application/json");
-    res.end(s(Object.keys(clients)));
   },
   notFound: (res) => {
     res.setHeader("code", 404);

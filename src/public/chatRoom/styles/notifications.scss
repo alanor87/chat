@@ -1,14 +1,23 @@
-.newClientNotificationsList {
+.notificationStackBlock {
   position: absolute;
   top: 0;
   right: 0;
   width: fit-content;
   height: auto;
+  padding: 10px;
+  background-color: transparent;
+  pointer-events: none;
   z-index: 1;
 }
 
-.newClientNotification {
+.notification {
   width: 200px;
   max-width: 300px;
+  padding: 5px;
+  white-space: break-spaces;
   background-color: var(--color3);
+
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
 }

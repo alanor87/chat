@@ -109,13 +109,13 @@ function writeLocalSessionData({
   clientId,
   nickname,
   token,
-  isAdmin = 'notAdmin',
+  isAdmin,
 }: SessionDataType) {
   sessionStorage.setItem("chatRoomId", chatRoomId);
   sessionStorage.setItem("clientId", clientId);
   sessionStorage.setItem("nickname", nickname);
   sessionStorage.setItem("token", token);
-  sessionStorage.setItem("isAdmin", isAdmin || "");
+  sessionStorage.setItem("isAdmin", isAdmin || "notAdmin");
 }
 
 async function createChatRoomRequest() {

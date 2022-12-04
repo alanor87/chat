@@ -163,7 +163,7 @@ function writeLocalSessionData(_a) {
     sessionStorage.setItem("clientId", clientId);
     sessionStorage.setItem("nickname", nickname);
     sessionStorage.setItem("token", token);
-    sessionStorage.setItem("isAdmin", isAdmin || "");
+    sessionStorage.setItem("isAdmin", isAdmin || "notAdmin");
 }
 function createChatRoomRequest() {
     return __awaiter(this, void 0, void 0, function () {
@@ -233,7 +233,6 @@ function joinChatRoomRequest() {
                         chatRoomId: chatRoomId,
                         clientId: clientId,
                         nickname: nickname,
-                        isAdmin: "notAdmin",
                         token: token,
                     });
                     window.location.assign(window.location.origin + "/chatRoom");

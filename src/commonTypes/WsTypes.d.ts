@@ -29,7 +29,7 @@ type ClientInitReqWsMessageType = {
 };
 type ClientInitResWsMessageType = {
   method: "client_init_response";
-  data: { result: string; isAdmin: string };
+  data: { result: string;};
 };
 type NewClientWelcomeWsMessageType = {
   method: "welcome_message";

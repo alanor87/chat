@@ -17,7 +17,7 @@ function wsServerRouter(currentConnection, wsMessage) {
                 const chatRoom = getChatRoomById(chatRoomId);
                 const responseSuccess = {
                     method: "client_init_response",
-                    data: { result: "success", isAdmin: 'notAdmin' },
+                    data: { result: "success" },
                 };
                 // Checking if the client already has connection - just reloaded the page.
                 if ((_a = chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.getClientById(clientId)) === null || _a === void 0 ? void 0 : _a.currentConnection) {

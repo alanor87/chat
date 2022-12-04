@@ -22,6 +22,10 @@
     align-self: flex-start;
   }
 
+  .messagesList {
+    overflow-y: auto;
+  }
+
   .userInput {
     display: flex;
   }

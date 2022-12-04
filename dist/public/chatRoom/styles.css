@@ -12,6 +12,20 @@
   color: var(--color2);
 }
 
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--color1);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color3);
+  border-radius: 2px;
+}
+
 button {
   padding: 10px;
   cursor: pointer;
@@ -78,6 +92,9 @@ svg.icon.active {
   display: flex;
   gap: 10px;
   align-self: flex-start;
+}
+.chat-history .messagesList {
+  overflow-y: auto;
 }
 .chat-history .userInput {
   display: flex;

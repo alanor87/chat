@@ -170,7 +170,6 @@ async function joinChatRoomRequest() {
       chatRoomId,
       clientId,
       nickname,
-      isAdmin: "notAdmin",
       token,
     });
 

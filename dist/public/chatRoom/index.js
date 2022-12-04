@@ -73,14 +73,12 @@ function createMessageElement(_a) {
     var messageType = _a.messageType, message = _a.message; _a.fromClientId; var fromClientNickname = _a.fromClientNickname;
     var messageElement = document.createElement("div");
     messageElement.classList.add("message", messageType);
-    console.log(messageElement);
     switch (messageType) {
         case "welcome": {
             messageElement.innerText = message;
             break;
         }
         case "incoming": {
-            console.log("Incoming");
             var from = document.createElement("span");
             from.innerText = fromClientNickname || "anon";
             messageElement.append(from, "  :  ", message);
@@ -94,7 +92,6 @@ function createMessageElement(_a) {
             break;
         }
     }
-    console.log(messageElement);
     refs.messagesList.appendChild(messageElement);
 }
 function createNotificationElement(notification) {
@@ -125,15 +122,26 @@ function wsClientRouter(message) {
     switch (parsedWsMessage.method) {
         // Connection is automatically closed by server in case of auth failure, logging out.
         case "client_init_response": {
-            var _a = parsedWsMessage.data, result = _a.result; _a.isAdmin;
+            var result = parsedWsMessage.data.result;
             if (result === "error")
                 logout("Server closed the onnection.");
             break;
         }
         case "new_message_broadcast": {
-            var _b = parsedWsMessage.data, fromClientId = _b.fromClientId, fromClientNickname = _b.fromClientNickname, toClientId = _b.toClientId, message_1 = _b.message;
+            var _a = parsedWsMessage.data, fromClientId = _a.fromClientId, fromClientNickname = _a.fromClientNickname, toClientId = _a.toClientId, message_1 = _a.message;
+            var messagesList = refs.messagesList;
             var messageType = fromClientId === sessionData.clientId ? "outcoming" : "incoming";
-            createMessageElement({ messageType: messageType, message: message_1, fromClientId: fromClientId, fromClientNickname: fromClientNickname, toClientId: toClientId });
+            var wasScrolledToBottom = Math.abs(messagesList.scrollHeight - messagesList.clientHeight - messagesList.scrollTop) < 1;
+            createMessageElement({
+                messageType: messageType,
+                message: message_1,
+                fromClientId: fromClientId,
+                fromClientNickname: fromClientNickname,
+                toClientId: toClientId,
+            });
+            // Scrolling on new message only if the messages list was scrolled to bottom on message arrival.
+            if (wasScrolledToBottom)
+                messagesList === null || messagesList === void 0 ? void 0 : messagesList.scrollTo({ top: messagesList === null || messagesList === void 0 ? void 0 : messagesList.clientHeight });
             break;
         }
         case "welcome_message": {
@@ -166,6 +174,8 @@ function stopPing() {
     clearInterval(pingIntervalId);
 }
 function sendMessage() {
+    if (!refs.userInput.value)
+        return;
     var messageText = refs.userInput.value;
     var newClientMessage = {
         method: "new_message",
@@ -180,7 +190,6 @@ function sendMessage() {
     wsClient.send(message);
 }
 function onInputEnterPress(e) {
-    console.log(e);
     if (e.key === "Enter")
         sendMessage();
 }
@@ -199,9 +208,8 @@ function sessionStorageInit() {
     });
 }
 function adminComponentsInit() {
-    if (sessionData.isAdmin === "isAdmin") {
+    if (sessionData.isAdmin === "isAdmin")
         refs.inviteLinkCopyButton.classList.remove("hidden");
-    }
 }
 function eventListenersInit() {
     try {
@@ -266,7 +274,8 @@ function chatRoomAuthorization() {
                 case 3: return [4 /*yield*/, response.json()];
                 case 4:
                     isAdmin = (_a.sent()).isAdmin;
-                    sessionStorage.setItem('isAdmin', isAdmin);
+                    sessionStorage.setItem("isAdmin", isAdmin);
+                    sessionData.isAdmin = isAdmin;
                     return [2 /*return*/];
             }
         });

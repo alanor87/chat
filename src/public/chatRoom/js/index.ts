@@ -22,6 +22,7 @@ function stopPing() {
 }
 
 function sendMessage() {
+  if (!refs.userInput!.value) return;
   const messageText = refs.userInput!.value;
   const newClientMessage: WsMessageType = {
     method: "new_message",
@@ -37,7 +38,6 @@ function sendMessage() {
 }
 
 function onInputEnterPress(e: any) {
-  console.log(e);
   if (e.key === "Enter") sendMessage();
 }
 
@@ -73,9 +73,8 @@ function sessionStorageInit() {
 }
 
 function adminComponentsInit() {
-  if (sessionData.isAdmin === "isAdmin") {
+  if (sessionData.isAdmin === "isAdmin")
     refs.inviteLinkCopyButton!.classList.remove("hidden");
-  }
 }
 
 function eventListenersInit() {
@@ -137,8 +136,9 @@ async function chatRoomAuthorization() {
     const responceText = await response.text();
     throw new Error("Authorization failure. " + responceText);
   }
-  const {isAdmin} = await response.json();
-  sessionStorage.setItem('isAdmin', isAdmin);
+  const { isAdmin } = await response.json();
+  sessionStorage.setItem("isAdmin", isAdmin);
+  sessionData.isAdmin = isAdmin;
 }
 
 async function chatRoomInit() {

@@ -21,16 +21,13 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
 
         const responseSuccess: WsMessageType = {
           method: "client_init_response",
-          data: { result: "success", isAdmin: 'notAdmin' },
+          data: { result: "success" },
         };
 
         // Checking if the client already has connection - just reloaded the page.
         if (chatRoom?.getClientById(clientId)?.currentConnection) {
           console.log(clientId + ' restored dropped connection.');
           const client = chatRoom!.getClientById(clientId);
-
-
-
           client!.currentConnection = currentConnection;
           client!.currentConnection!.send(s(responseSuccess));
           return;

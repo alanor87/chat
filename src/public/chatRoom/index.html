@@ -6,27 +6,27 @@
     <base href="{BASE_URL}" />
   </head>
   <body>
-    <!-- MAIN BLOCK -->
+    <!-- MAIN -->
 
     <div class="main">
       <!-- SIDE BAR -->
 
       <div class="sideBar" id="sideBar">
         <button
-            id="sideBarCloseButton"
-            class="sideBarCloseButton"
-            title="Close"
-          >
-            <svg class="icon">
-              <use href="public/img/sprite.svg#icon_close"></use>
-            </svg>
-          </button>
+          id="sideBarCloseButton"
+          class="sideBarCloseButton"
+          title="Close"
+        >
+          <svg class="icon">
+            <use href="public/img/sprite.svg#icon_close"></use>
+          </svg>
+        </button>
         <div id="clientsList" class="clientsList"></div>
       </div>
 
-      <!-- SIDE BAR END -->
-
+      <!-- CHAT MESSAGES -->
       <div class="chat-history">
+        <!-- CHAT OPTIONS -->
         <div class="chatOptions">
           <button
             id="inviteLinkCopyButton"
@@ -42,16 +42,25 @@
               <use href="public/img/sprite.svg#icon_clients"></use>
             </svg>
           </button>
+          <button id="exitChatButton" title="Exit chat">
+            <svg class="icon">
+              <use href="public/img/sprite.svg#icon_exit"></use>
+            </svg>
+          </button>
         </div>
+
+        <!-- MESSAGES LIST-->
         <div id="messagesList" class="messagesList"></div>
+
+        <!-- USER INPUT BLOCK -->
         <div class="userInput">
           <input id="userInput" type="text" />
           <button id="sendMessageButton">Send</button>
         </div>
       </div>
     </div>
-    <!-- MAIN BLOCK END -->
 
+    <!-- NOTIFICATIONS OVERLAY -->
     <div id="notificationStackBlock" class="notificationStackBlock"></div>
     <script type="module" src="public/chatRoom/index.js"></script>
   </body>

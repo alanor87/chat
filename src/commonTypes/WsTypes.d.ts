@@ -4,7 +4,7 @@ type WsMethods =
   | "client_init_request"
   | "client_init_response"
   | "welcome_message"
-  | "new_client"
+  | "announcement_broadcast"
   | "new_message"
   | "new_message_broadcast"
   | "client_exit_request"
@@ -19,7 +19,6 @@ type WsMessageType =
   | ClientNewMessageWsMessageType
   | NewMessageBroadcastWsMessageType
   | NewMessagePrivateWsMessageType
-  | ClentExitRequestWsMessageType
   | PingWsMessageType;
 
 // Messages types.
@@ -35,9 +34,9 @@ type NewClientWelcomeWsMessageType = {
   method: "welcome_message";
   data: { message: string };
 };
-type NewCLientBroadcastWsMessageType = {
-  method: "new_client";
-  data: { nickname: string };
+type AnnouncementBroadcastWsMessageType = {
+  method: "announcement_broadcast";
+  data: { message: string };
 };
 type ClientNewMessageWsMessageType = {
   method: "new_message";
@@ -65,10 +64,6 @@ type NewMessagePrivateWsMessageType = {
     fromClientNickname: string;
     toClientId: string;
   };
-};
-type ClentExitRequestWsMessageType = {
-  method: "client_exit_request";
-  data: { chatRoomId: string; clientId: string };
 };
 type ChatRoomTerminationWsMessageType = {
   method: "chat_room_termination";

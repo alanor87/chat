@@ -3,6 +3,7 @@ import * as fs from "fs/promises";
 import { staticAssetsInterpolation } from "../helpers/staticAssetsInterpolation.js";
 import { createChatRoom } from "./api/createChatRoom.js";
 import { joinChatRoom } from "./api/joinChatRoom.js";
+import { exitChatRoom } from "./api/exitChatRoom.js";
 import { chatRoomAuthorization } from "./api/chatRoomAuthorization.js";
 
 export const router: RouterType = {
@@ -16,7 +17,7 @@ export const router: RouterType = {
         .setHeader("content-type", "text/html")
         .end(response);
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
       throw new Error(e.message);
     }
   },
@@ -57,6 +58,7 @@ export const router: RouterType = {
 
   ["api/createChatRoom"]: createChatRoom,
   ["api/joinChatRoom"]: joinChatRoom,
+  ["api/exitChatRoom"]: exitChatRoom,
 
   ["api/chatRoomAuthorization"]: chatRoomAuthorization,
 

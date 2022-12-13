@@ -6,6 +6,7 @@ export type RefsType = {
   clientsList: HTMLDivElement | null;
   inviteLinkCopyButton: HTMLButtonElement | null;
   clientsListButton: HTMLButtonElement | null;
+  exitChatButton: HTMLButtonElement | null;
   notificationStackBlock: HTMLDivElement | null;
 };
 

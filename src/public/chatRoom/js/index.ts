@@ -4,7 +4,7 @@ import { jsonStringify as s } from "../../../helpers/jsonStringify.js";
 import { logout } from "../../../helpers/logout.js";
 import { sessionData } from "../../common/sessionData.js";
 import { WsMessageType } from "../../../commonTypes/WsTypes.js";
-import { createNotificationElement } from "./componentsRender.js";
+import { createAnnouncementElement } from "./componentsRender.js";
 
 let selectedRecipientId: string;
 let wsClient: WebSocket;
@@ -45,11 +45,21 @@ function inviteLinkCopy() {
   window.navigator.clipboard.writeText(
     window.location.origin + "/?chatRoomId=" + sessionData.chatRoomId
   );
-  createNotificationElement("Chat room link is copied to clipboard.");
+  createAnnouncementElement("Chat room link is copied to clipboard.");
 }
 
 function toggleClientsList() {
   refs.sideBar!.classList.toggle("hidden");
+}
+
+async function exitChat() {
+  const headers = new Headers({
+    Authorization: "Bearer " + sessionData.token,
+  });
+  const { chatRoomId, clientId } = sessionData;
+  const body = s({ chatRoomId, clientId });
+  const requestOptions = { method: "POST", headers, body };
+  await fetch("api/exitChatRoom", requestOptions);
 }
 
 function setClientsList(clients: [string]) {
@@ -83,6 +93,7 @@ function eventListenersInit() {
     refs.sendMessageButton!.addEventListener("click", sendMessage);
     refs.inviteLinkCopyButton!.addEventListener("click", inviteLinkCopy);
     refs.clientsListButton!.addEventListener("click", toggleClientsList);
+    refs.exitChatButton!.addEventListener("click", exitChat);
 
     window.addEventListener("click", (e) => {
       const chosenEntry = e.target as HTMLDivElement;
@@ -117,9 +128,9 @@ function wsClientInit() {
     wsClientRouter(e.data);
   };
 
-  wsClient.onclose = () => {
+  wsClient.onclose = (event) => {
     stopPing();
-    logout("Socket connection closed.");
+    logout("Socket connection closed. " + event.reason);
   };
 }
 
@@ -128,8 +139,8 @@ async function chatRoomAuthorization() {
   const headers = new Headers({
     Authorization: "Bearer " + sessionData.token,
   });
-  const { chatRoomId, clientId, token } = sessionData;
-  const body = s({ chatRoomId, clientId, token });
+  const { chatRoomId, clientId } = sessionData;
+  const body = s({ chatRoomId, clientId });
   const requestOptions = { method: "POST", headers, body };
   const response = await fetch("api/chatRoomAuthorization", requestOptions);
   if (response.status === 401) {

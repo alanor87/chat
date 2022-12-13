@@ -1,19 +1,31 @@
+import chalk from "chalk";
 import { ServerResponse } from "http";
+import { RequestDataType } from "../../commonTypes/HttpServerTypes.js";
 import { clientDataValidation } from "../../helpers/clientDataValidation.js";
 import { jsonStringify as s } from "../../helpers/jsonStringify.js";
+import { logObject } from "../../helpers/logging.js";
 import { getChatRoomById } from "../chatRoom.js";
 
-function chatRoomAuthorization(res: ServerResponse, reqData: any) {
+function chatRoomAuthorization(res: ServerResponse, reqData: RequestDataType) {
+  const {
+    body: { chatRoomId, clientId },
+    token,
+  } = reqData;
   try {
-    const { headers, body } = reqData;
-    const { chatRoomId, clientId } = body;
-    const token = headers.authorization.split(" ")[1];
     // Throws in case of failure in check.
     clientDataValidation(chatRoomId, clientId, token);
-    const isAdmin = getChatRoomById(chatRoomId)?.isAdmin(clientId, token) ? 'isAdmin' : 'notAdmin';
-    res.writeHead(200).end(s({isAdmin}));
+    const isAdmin = getChatRoomById(chatRoomId)?.isAdmin(clientId, token)
+      ? "isAdmin"
+      : "notAdmin";
+    res.writeHead(200).end(s({ isAdmin }));
   } catch (e: any) {
-    console.log(e.message);
+    console.log(
+      logObject("Auth failure : ", "red", {
+        "Chat room id": chatRoomId,
+        "Client id": clientId,
+      })
+    );
+
     res.writeHead(401).end(e.message);
   }
 }

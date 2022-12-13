@@ -8,6 +8,7 @@ export type RouterType = {
 export type RequestDataType = {
   path: string;
   headers: IncomingHeaders;
+  token: string;
   method? : string,
   query : ParsedUrlQuery,
   body : {[key: string] : any},

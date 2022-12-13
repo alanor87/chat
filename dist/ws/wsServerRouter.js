@@ -2,6 +2,7 @@ import { jsonStringify as s } from "../helpers/jsonStringify.js";
 import { jsonParse as p } from "../helpers/jsonParse.js";
 import { clientDataValidation } from "../helpers/clientDataValidation.js";
 import { getChatRoomById } from "../http/chatRoom.js";
+import { color } from "../helpers/logging.js";
 function wsServerRouter(currentConnection, wsMessage) {
     var _a;
     const parsedWsMessage = p(wsMessage);
@@ -21,7 +22,8 @@ function wsServerRouter(currentConnection, wsMessage) {
                 };
                 // Checking if the client already has connection - just reloaded the page.
                 if ((_a = chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.getClientById(clientId)) === null || _a === void 0 ? void 0 : _a.currentConnection) {
-                    console.log(clientId + ' restored dropped connection.');
+                    console.log("Client " +
+                        color("yellow", clientId) + " restored dropped connection.");
                     const client = chatRoom.getClientById(clientId);
                     client.currentConnection = currentConnection;
                     client.currentConnection.send(s(responseSuccess));
@@ -31,8 +33,8 @@ function wsServerRouter(currentConnection, wsMessage) {
                 chatRoom.addClientConnection(clientId, currentConnection);
                 const nickname = chatRoom.getClientById(clientId).nickname;
                 const newClientBroadcastMessage = {
-                    method: "new_client",
-                    data: { nickname },
+                    method: "announcement_broadcast",
+                    data: { message: nickname + " has joined." },
                 };
                 const newClientWelcomeMessage = {
                     method: "welcome_message",
@@ -40,10 +42,7 @@ function wsServerRouter(currentConnection, wsMessage) {
                         message: "Welcome, " + nickname + ". Your id is : " + clientId + ".",
                     },
                 };
-                chatRoom.getAllClientConnections().forEach((connection) => {
-                    if (connection)
-                        connection.send(s(newClientBroadcastMessage));
-                });
+                chatRoom.broadcast(newClientBroadcastMessage);
                 currentConnection.send(s(newClientWelcomeMessage));
                 currentConnection.send(s(responseSuccess));
             }
@@ -61,7 +60,7 @@ function wsServerRouter(currentConnection, wsMessage) {
         }
         case "new_message": {
             try {
-                const { chatRoomId, toClientId, fromClientId, message } = parsedWsMessage.data;
+                const { chatRoomId, fromClientId, message } = parsedWsMessage.data;
                 const chatRoom = getChatRoomById(chatRoomId);
                 if (!chatRoom)
                     throw Error("Chat room does not exist");
@@ -80,13 +79,6 @@ function wsServerRouter(currentConnection, wsMessage) {
             }
             finally {
                 break;
-            }
-        }
-        case "client_exit_request": {
-            const { chatRoomId, clientId } = parsedWsMessage.data;
-            const chatRoom = getChatRoomById(chatRoomId);
-            if (chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.getClientById(clientId)) {
-                chatRoom.deleteClient(clientId);
             }
         }
         case "ping": {

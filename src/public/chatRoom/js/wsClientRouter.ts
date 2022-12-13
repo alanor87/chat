@@ -2,7 +2,7 @@ import { WsMessageType } from "../../../commonTypes/WsTypes.js";
 import { logout } from "../../../helpers/logout.js";
 import {
   createMessageElement,
-  createNotificationElement,
+  createAnnouncementElement,
 } from "./componentsRender.js";
 import { refs } from "./refs";
 import { jsonParse as p } from "../../../helpers/jsonParse.js";
@@ -44,9 +44,9 @@ export function wsClientRouter(message: string) {
       break;
     }
 
-    case "new_client": {
-      const { nickname } = parsedWsMessage.data;
-      createNotificationElement(nickname + " has joined.");
+    case "announcement_broadcast": {
+      const { message } = parsedWsMessage.data;
+      createAnnouncementElement(message);
       break;
     }
     default: {

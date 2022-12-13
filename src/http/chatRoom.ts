@@ -1,4 +1,7 @@
 import { WebSocket } from "ws";
+import { WsMessageType } from "../commonTypes/WsTypes.js";
+import { color } from "../helpers/logging.js";
+import { jsonStringify as s } from "../helpers/jsonStringify.js";
 import { ChatClient } from "./chatClient.js";
 
 class ChatRoom {
@@ -46,29 +49,38 @@ class ChatRoom {
   }
 
   deleteClient(clientId: string) {
-    this.getClientById(clientId)?.currentConnection?.close();
+    const clientToDelete = this.getClientById(clientId);
+    clientToDelete?.currentConnection?.close();
     this.clients = this.clients.filter(
       (client) => client.clientId !== clientId
     );
-    if (!this.clients.length) {
-      chatRoomsList.filter((chatRoom) => chatRoom.id !== this.id);
-      console.log("Chat room " + this.id + " is empty and is being deleted.");
-    }
   }
 
   addClientConnection(clientId: string, connection: WebSocket) {
     const client = this.getClientById(clientId);
     connection.on("close", () => {
-      console.log(clientId + " connection dropped.");
+      console.log("Client " + color('yellow',clientId) + color("red"," connection dropped."));
     });
     client!.addConnection(connection);
   }
+
+  broadcast(message: WsMessageType) {
+    this.getAllClientConnections().forEach((connection) => {
+      if (connection) connection.send(s(message));
+    });
+  }
 }
 
-const chatRoomsList: ChatRoom[] = [];
+let chatRoomsList: ChatRoom[] = [];
 
 function getChatRoomById(id: string) {
   return chatRoomsList.find((room) => room.id === id);
 }
 
-export { ChatRoom, chatRoomsList, getChatRoomById };
+function deleteChatRoom(chatRoomId: string, reason = 'not defined') {
+  console.log('Deleting chat room ' + color("yellow",chatRoomId) + '. Reason : \n ' + reason);
+  getChatRoomById(chatRoomId)?.clients.forEach(client => client?.currentConnection?.close(1000, reason))
+  chatRoomsList = chatRoomsList.filter((chatRoom) => chatRoom.id !== chatRoomId);
+}
+
+export { ChatRoom, chatRoomsList, getChatRoomById, deleteChatRoom };

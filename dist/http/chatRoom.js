@@ -1,3 +1,5 @@
+import { color } from "../helpers/logging.js";
+import { jsonStringify as s } from "../helpers/jsonStringify.js";
 class ChatRoom {
     constructor(id, adminId, adminToken, password) {
         this.id = id;
@@ -25,24 +27,33 @@ class ChatRoom {
         this.clients.push(client);
     }
     deleteClient(clientId) {
-        var _a, _b;
-        (_b = (_a = this.getClientById(clientId)) === null || _a === void 0 ? void 0 : _a.currentConnection) === null || _b === void 0 ? void 0 : _b.close();
+        var _a;
+        const clientToDelete = this.getClientById(clientId);
+        (_a = clientToDelete === null || clientToDelete === void 0 ? void 0 : clientToDelete.currentConnection) === null || _a === void 0 ? void 0 : _a.close();
         this.clients = this.clients.filter((client) => client.clientId !== clientId);
-        if (!this.clients.length) {
-            chatRoomsList.filter((chatRoom) => chatRoom.id !== this.id);
-            console.log("Chat room " + this.id + " is empty and is being deleted.");
-        }
     }
     addClientConnection(clientId, connection) {
         const client = this.getClientById(clientId);
         connection.on("close", () => {
-            console.log(clientId + " connection dropped.");
+            console.log("Client " + color('yellow', clientId) + color("red", " connection dropped."));
         });
         client.addConnection(connection);
     }
+    broadcast(message) {
+        this.getAllClientConnections().forEach((connection) => {
+            if (connection)
+                connection.send(s(message));
+        });
+    }
 }
-const chatRoomsList = [];
+let chatRoomsList = [];
 function getChatRoomById(id) {
     return chatRoomsList.find((room) => room.id === id);
 }
-export { ChatRoom, chatRoomsList, getChatRoomById };
+function deleteChatRoom(chatRoomId, reason = 'not defined') {
+    var _a;
+    console.log('Deleting chat room ' + color("yellow", chatRoomId) + '. Reason : \n ' + reason);
+    (_a = getChatRoomById(chatRoomId)) === null || _a === void 0 ? void 0 : _a.clients.forEach(client => { var _a; return (_a = client === null || client === void 0 ? void 0 : client.currentConnection) === null || _a === void 0 ? void 0 : _a.close(1000, reason); });
+    chatRoomsList = chatRoomsList.filter((chatRoom) => chatRoom.id !== chatRoomId);
+}
+export { ChatRoom, chatRoomsList, getChatRoomById, deleteChatRoom };

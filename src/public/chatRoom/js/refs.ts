@@ -8,6 +8,7 @@ export const refs: RefsType = {
   clientsList: document.querySelector("#clientsList"),
   inviteLinkCopyButton: document.querySelector("#inviteLinkCopyButton"),
   clientsListButton: document.querySelector("#clientsListButton"),
+  exitChatButton: document.querySelector("#exitChatButton"),
   notificationStackBlock: document.querySelector("#notificationStackBlock"),
 };
 

@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 import { createServer as createHttpServer, } from "http";
 import { createServer as createHttpsServer } from "https";
 import path from "path";
@@ -7,10 +7,10 @@ import fs from "fs";
 import url from "url";
 import { jsonParse as p } from "../helpers/jsonParse.js";
 import { router } from "./httpRouter.js";
+import { color } from "../helpers/logging.js";
 dotenv.config();
-const { PORT, ENVIRONMENT } = process.env;
-console.log("PORT: ", PORT);
-console.log("ENVIRONMENT: ", ENVIRONMENT);
+const { PORT = 8080, ENVIRONMENT = "development" } = process.env;
+console.log("ENVIRONMENT: " + color("yellow", ENVIRONMENT));
 const httpsOptions = {
     key: fs.readFileSync(path.join(process.cwd(), "/dist/ssl/key.pem")),
     cert: fs.readFileSync(path.join(process.cwd(), "/dist/ssl/cert.pem")),
@@ -25,6 +25,7 @@ function unifiedServer(req, res) {
             buffer += decode.write(data);
         })
             .on("end", () => {
+            var _a;
             if (!req.url) {
                 router[""](res, { path: "" });
                 return;
@@ -38,10 +39,12 @@ function unifiedServer(req, res) {
             const body = buffer ? p(buffer) : {};
             // Getting path in form of */* string, or empty string.
             const path = pathname ? pathname.replace(/^\/+|\/$/, "") : "";
+            const token = ((_a = headers === null || headers === void 0 ? void 0 : headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1]) || "";
             // Forming data object to pass to further processing.
             const reqData = {
                 path,
                 headers,
+                token,
                 method,
                 query,
                 body,
@@ -61,7 +64,7 @@ function unifiedServer(req, res) {
         });
     }
     catch (e) {
-        console.log(e.message);
+        console.error(e.message);
         res.writeHead(500);
         res.end("Something went wrong! " + e.message);
     }
@@ -72,6 +75,6 @@ export const server = process.env.ENVIRONMENT === "production" ? httpServer : ht
 export function httpServerInit() {
     console.log("Http server init.");
     server.listen(PORT, () => {
-        console.log("http server is running on port ", PORT);
+        console.log("http server is running on port " + color("yellow", PORT));
     });
 }

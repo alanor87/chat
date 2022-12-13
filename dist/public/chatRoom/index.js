@@ -59,6 +59,7 @@ var refs = {
     clientsList: document.querySelector("#clientsList"),
     inviteLinkCopyButton: document.querySelector("#inviteLinkCopyButton"),
     clientsListButton: document.querySelector("#clientsListButton"),
+    exitChatButton: document.querySelector("#exitChatButton"),
     notificationStackBlock: document.querySelector("#notificationStackBlock"),
 };
 
@@ -94,7 +95,7 @@ function createMessageElement(_a) {
     }
     refs.messagesList.appendChild(messageElement);
 }
-function createNotificationElement(notification) {
+function createAnnouncementElement(notification) {
     var messageElement = document.createElement("div");
     messageElement.classList.add("notification");
     messageElement.innerText = notification;
@@ -149,9 +150,9 @@ function wsClientRouter(message) {
             createMessageElement({ messageType: "welcome", message: message_2 });
             break;
         }
-        case "new_client": {
-            var nickname = parsedWsMessage.data.nickname;
-            createNotificationElement(nickname + " has joined.");
+        case "announcement_broadcast": {
+            var message_3 = parsedWsMessage.data.message;
+            createAnnouncementElement(message_3);
             break;
         }
     }
@@ -195,10 +196,30 @@ function onInputEnterPress(e) {
 }
 function inviteLinkCopy() {
     window.navigator.clipboard.writeText(window.location.origin + "/?chatRoomId=" + sessionData.chatRoomId);
-    createNotificationElement("Chat room link is copied to clipboard.");
+    createAnnouncementElement("Chat room link is copied to clipboard.");
 }
 function toggleClientsList() {
     refs.sideBar.classList.toggle("hidden");
+}
+function exitChat() {
+    return __awaiter(this, void 0, void 0, function () {
+        var headers, chatRoomId, clientId, body, requestOptions;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    headers = new Headers({
+                        Authorization: "Bearer " + sessionData.token,
+                    });
+                    chatRoomId = sessionData.chatRoomId, clientId = sessionData.clientId;
+                    body = jsonStringify({ chatRoomId: chatRoomId, clientId: clientId });
+                    requestOptions = { method: "POST", headers: headers, body: body };
+                    return [4 /*yield*/, fetch("api/exitChatRoom", requestOptions)];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
 }
 function sessionStorageInit() {
     Object.keys(sessionData).forEach(function (item) {
@@ -217,6 +238,7 @@ function eventListenersInit() {
         refs.sendMessageButton.addEventListener("click", sendMessage);
         refs.inviteLinkCopyButton.addEventListener("click", inviteLinkCopy);
         refs.clientsListButton.addEventListener("click", toggleClientsList);
+        refs.exitChatButton.addEventListener("click", exitChat);
         window.addEventListener("click", function (e) {
             var chosenEntry = e.target;
             var classList = chosenEntry.classList.value;
@@ -245,23 +267,23 @@ function wsClientInit() {
     wsClient.onmessage = function (e) {
         wsClientRouter(e.data);
     };
-    wsClient.onclose = function () {
+    wsClient.onclose = function (event) {
         stopPing();
-        logout("Socket connection closed.");
+        logout("Socket connection closed. " + event.reason);
     };
 }
 // Sending the auth data on opening the page load.
 function chatRoomAuthorization() {
     return __awaiter(this, void 0, void 0, function () {
-        var headers, chatRoomId, clientId, token, body, requestOptions, response, responceText, isAdmin;
+        var headers, chatRoomId, clientId, body, requestOptions, response, responceText, isAdmin;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     headers = new Headers({
                         Authorization: "Bearer " + sessionData.token,
                     });
-                    chatRoomId = sessionData.chatRoomId, clientId = sessionData.clientId, token = sessionData.token;
-                    body = jsonStringify({ chatRoomId: chatRoomId, clientId: clientId, token: token });
+                    chatRoomId = sessionData.chatRoomId, clientId = sessionData.clientId;
+                    body = jsonStringify({ chatRoomId: chatRoomId, clientId: clientId });
                     requestOptions = { method: "POST", headers: headers, body: body };
                     return [4 /*yield*/, fetch("api/chatRoomAuthorization", requestOptions)];
                 case 1:

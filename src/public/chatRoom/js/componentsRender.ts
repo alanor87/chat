@@ -1,5 +1,5 @@
 import { refs } from "./refs.js";
-import { ChatHistoryMessageType, CreateMessageArgsType } from "./types.js";
+import { CreateMessageArgsType } from "./types.js";
 
 export function createMessageElement({
   messageType,
@@ -33,7 +33,7 @@ export function createMessageElement({
   refs.messagesList!.appendChild(messageElement);
 }
 
-export function createNotificationElement(notification: string) {
+export function createAnnouncementElement(notification: string) {
   const messageElement = document.createElement("div");
   messageElement.classList.add("notification");
   messageElement.innerText = notification;

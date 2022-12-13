@@ -11,6 +11,7 @@ import * as fs from "fs/promises";
 import { staticAssetsInterpolation } from "../helpers/staticAssetsInterpolation.js";
 import { createChatRoom } from "./api/createChatRoom.js";
 import { joinChatRoom } from "./api/joinChatRoom.js";
+import { exitChatRoom } from "./api/exitChatRoom.js";
 import { chatRoomAuthorization } from "./api/chatRoomAuthorization.js";
 export const router = {
     "": (res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -24,7 +25,7 @@ export const router = {
                 .end(response);
         }
         catch (e) {
-            console.log(e);
+            console.error(e);
             throw new Error(e.message);
         }
     }),
@@ -67,6 +68,7 @@ export const router = {
     }),
     ["api/createChatRoom"]: createChatRoom,
     ["api/joinChatRoom"]: joinChatRoom,
+    ["api/exitChatRoom"]: exitChatRoom,
     ["api/chatRoomAuthorization"]: chatRoomAuthorization,
     ["api/getClients"]: (res, reqData) => {
         res.setHeader("content-type", "application/json");

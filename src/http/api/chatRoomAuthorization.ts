@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { ServerResponse } from "http";
 import { RequestDataType } from "../../commonTypes/HttpServerTypes.js";
 import { clientDataValidation } from "../../helpers/clientDataValidation.js";
@@ -14,10 +13,17 @@ function chatRoomAuthorization(res: ServerResponse, reqData: RequestDataType) {
   try {
     // Throws in case of failure in check.
     clientDataValidation(chatRoomId, clientId, token);
-    const isAdmin = getChatRoomById(chatRoomId)?.isAdmin(clientId, token)
+    const chatRoom = getChatRoomById(chatRoomId);
+    const isAdmin = chatRoom?.isAdmin(clientId, token)
       ? "isAdmin"
       : "notAdmin";
-    res.writeHead(200).end(s({ isAdmin }));
+
+    // Sending the list of clinets on the moment of current clinet authorization
+    const clientsList = chatRoom?.clients.map(({ clientId, nickname }) => ({
+      clientId,
+      nickname,
+    }));
+    res.writeHead(200).end(s({ isAdmin, clientsList }));
   } catch (e: any) {
     console.log(
       logObject("Auth failure : ", "red", {
@@ -25,6 +31,7 @@ function chatRoomAuthorization(res: ServerResponse, reqData: RequestDataType) {
         "Client id": clientId,
       })
     );
+    console.log(e);
 
     res.writeHead(401).end(e.message);
   }

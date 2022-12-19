@@ -15,7 +15,7 @@ type WsMessageType =
   | ClientInitReqWsMessageType
   | ClientInitResWsMessageType
   | NewClientWelcomeWsMessageType
-  | NewCLientBroadcastWsMessageType
+  | AnnouncementBroadcastWsMessageType
   | ClientNewMessageWsMessageType
   | NewMessageBroadcastWsMessageType
   | NewMessagePrivateWsMessageType
@@ -36,7 +36,7 @@ type NewClientWelcomeWsMessageType = {
 };
 type AnnouncementBroadcastWsMessageType = {
   method: "announcement_broadcast";
-  data: { message: string };
+  data: { message: string, [key: string] : any};
 };
 type ClientNewMessageWsMessageType = {
   method: "new_message";
@@ -73,7 +73,7 @@ type ChatRoomTerminationWsMessageType = {
 };
 type PingWsMessageType = {
   method: "ping";
-  data: {};
+  data: {message: ''};
 };
 
 export { WsMessageType };

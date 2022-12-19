@@ -3,21 +3,27 @@ import { jsonStringify as s } from "../../helpers/jsonStringify.js";
 import { logObject } from "../../helpers/logging.js";
 import { getChatRoomById } from "../chatRoom.js";
 function chatRoomAuthorization(res, reqData) {
-    var _a;
     const { body: { chatRoomId, clientId }, token, } = reqData;
     try {
         // Throws in case of failure in check.
         clientDataValidation(chatRoomId, clientId, token);
-        const isAdmin = ((_a = getChatRoomById(chatRoomId)) === null || _a === void 0 ? void 0 : _a.isAdmin(clientId, token))
+        const chatRoom = getChatRoomById(chatRoomId);
+        const isAdmin = (chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.isAdmin(clientId, token))
             ? "isAdmin"
             : "notAdmin";
-        res.writeHead(200).end(s({ isAdmin }));
+        // Sending the list of clinets on the moment of current clinet authorization
+        const clientsList = chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.clients.map(({ clientId, nickname }) => ({
+            clientId,
+            nickname,
+        }));
+        res.writeHead(200).end(s({ isAdmin, clientsList }));
     }
     catch (e) {
         console.log(logObject("Auth failure : ", "red", {
             "Chat room id": chatRoomId,
             "Client id": clientId,
         }));
+        console.log(e);
         res.writeHead(401).end(e.message);
     }
 }

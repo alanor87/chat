@@ -9,7 +9,7 @@ function exitChatRoom(res, reqData) {
         const announcementMessage = {
             method: 'announcement_broadcast',
             data: {
-                message: (client === null || client === void 0 ? void 0 : client.nickname) + ' has left the chat room.'
+                message: (client === null || client === void 0 ? void 0 : client.nickname) + ' has left the chat room.', reason: 'client_exit'
             }
         };
         chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.broadcast(announcementMessage);

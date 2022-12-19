@@ -5,6 +5,7 @@ import { logout } from "../../../helpers/logout.js";
 import { sessionData } from "../../common/sessionData.js";
 import { WsMessageType } from "../../../commonTypes/WsTypes.js";
 import { createAnnouncementElement } from "./componentsRender.js";
+import { clientsListEntries } from "./clientsList.js";
 
 let selectedRecipientId: string;
 let wsClient: WebSocket;
@@ -147,7 +148,8 @@ async function chatRoomAuthorization() {
     const responceText = await response.text();
     throw new Error("Authorization failure. " + responceText);
   }
-  const { isAdmin } = await response.json();
+  const { isAdmin, clientsList } = await response.json();
+  clientsList.forEach(client => clientsListEntries.push(client));
   sessionStorage.setItem("isAdmin", isAdmin);
   sessionData.isAdmin = isAdmin;
 }

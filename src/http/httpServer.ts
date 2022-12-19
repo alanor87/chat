@@ -1,5 +1,4 @@
 import * as dotenv from "dotenv";
-import chalk from "chalk";
 import {
   createServer as createHttpServer,
   IncomingMessage,

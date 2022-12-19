@@ -104,6 +104,24 @@ function createAnnouncementElement(notification) {
         refs.notificationStackBlock.removeChild(messageElement);
     }, 3000);
 }
+function createClientEntryElement(nickname, clientId) {
+    var newClientEntry = document.createElement("li");
+    newClientEntry.classList.add("clinetEntry");
+    newClientEntry.setAttribute('data-clientId', clientId);
+    newClientEntry.innerText = nickname;
+    return newClientEntry;
+}
+function clientsListRender(clientsList) {
+    var _a;
+    console.log(clientsList);
+    var clientsListElements = clientsList.map(function (_a) {
+        var nickname = _a.nickname, clientId = _a.clientId;
+        return createClientEntryElement(nickname, clientId);
+    });
+    refs.clientsList.innerHTML = '';
+    console.log('appending : ', clientsListElements);
+    (_a = refs.clientsList).append.apply(_a, clientsListElements);
+}
 
 function jsonParse(string) {
     return JSON.parse(string);
@@ -117,6 +135,24 @@ var sessionData = (_a = {},
     _a["nickname"] = "",
     _a["isAdmin"] = "",
     _a);
+
+function createObservableArray(arr, callbacks) {
+    Object.keys(callbacks).forEach(function (method) {
+        if (!Array.prototype.hasOwnProperty(method))
+            return;
+        // @ts-ignore
+        arr[method] = function () {
+            // @ts-ignore
+            var res = Array.prototype[method].apply(arr, arguments);
+            callbacks[method](arr);
+            return res;
+        };
+    });
+    return arr;
+}
+
+var clientsListEmpty = [];
+var clientsListEntries = createObservableArray(clientsListEmpty, { 'push': clientsListRender });
 
 function wsClientRouter(message) {
     var parsedWsMessage = jsonParse(message);
@@ -132,7 +168,9 @@ function wsClientRouter(message) {
             var _a = parsedWsMessage.data, fromClientId = _a.fromClientId, fromClientNickname = _a.fromClientNickname, toClientId = _a.toClientId, message_1 = _a.message;
             var messagesList = refs.messagesList;
             var messageType = fromClientId === sessionData.clientId ? "outcoming" : "incoming";
-            var wasScrolledToBottom = Math.abs(messagesList.scrollHeight - messagesList.clientHeight - messagesList.scrollTop) < 1;
+            var wasScrolledToBottom = Math.abs(messagesList.scrollHeight -
+                messagesList.clientHeight -
+                messagesList.scrollTop) < 1;
             createMessageElement({
                 messageType: messageType,
                 message: message_1,
@@ -151,7 +189,19 @@ function wsClientRouter(message) {
             break;
         }
         case "announcement_broadcast": {
-            var message_3 = parsedWsMessage.data.message;
+            var _b = parsedWsMessage.data, message_3 = _b.message, reason = _b.reason;
+            switch (reason) {
+                case "client_join": {
+                    var _c = parsedWsMessage.data, nickname = _c.nickname, clientId_1 = _c.clientId;
+                    if (clientsListEntries.find(function (client) { return client.clientId === clientId_1; }))
+                        break;
+                    clientsListEntries.push({
+                        nickname: nickname,
+                        clientId: clientId_1,
+                    });
+                    break;
+                }
+            }
             createAnnouncementElement(message_3);
             break;
         }
@@ -275,9 +325,9 @@ function wsClientInit() {
 // Sending the auth data on opening the page load.
 function chatRoomAuthorization() {
     return __awaiter(this, void 0, void 0, function () {
-        var headers, chatRoomId, clientId, body, requestOptions, response, responceText, isAdmin;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var headers, chatRoomId, clientId, body, requestOptions, response, responceText, _a, isAdmin, clientsList;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
                     headers = new Headers({
                         Authorization: "Bearer " + sessionData.token,
@@ -287,15 +337,16 @@ function chatRoomAuthorization() {
                     requestOptions = { method: "POST", headers: headers, body: body };
                     return [4 /*yield*/, fetch("api/chatRoomAuthorization", requestOptions)];
                 case 1:
-                    response = _a.sent();
+                    response = _b.sent();
                     if (!(response.status === 401)) return [3 /*break*/, 3];
                     return [4 /*yield*/, response.text()];
                 case 2:
-                    responceText = _a.sent();
+                    responceText = _b.sent();
                     throw new Error("Authorization failure. " + responceText);
                 case 3: return [4 /*yield*/, response.json()];
                 case 4:
-                    isAdmin = (_a.sent()).isAdmin;
+                    _a = _b.sent(), isAdmin = _a.isAdmin, clientsList = _a.clientsList;
+                    clientsList.forEach(function (client) { return clientsListEntries.push(client); });
                     sessionStorage.setItem("isAdmin", isAdmin);
                     sessionData.isAdmin = isAdmin;
                     return [2 /*return*/];

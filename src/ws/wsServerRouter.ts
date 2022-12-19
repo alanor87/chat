@@ -43,7 +43,7 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
 
         const newClientBroadcastMessage: WsMessageType = {
           method: "announcement_broadcast",
-          data: { message : nickname + " has joined." },
+          data: { message : nickname + " has joined.", reason: 'client_join', nickname, clientId },
         };
 
         const newClientWelcomeMessage: WsMessageType = {

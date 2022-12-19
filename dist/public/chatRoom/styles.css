@@ -98,6 +98,7 @@ svg.icon.active {
 }
 .chat-history .userInput {
   display: flex;
+  gap: 10px;
 }
 .chat-history .userInput input {
   width: 80%;
@@ -136,13 +137,14 @@ svg.icon.active {
   }
 }
 
-.clientEntry {
+.clientsList {
+  list-style: none;
+  padding: 10px;
+}
+.clientsList .clientEntry {
   cursor: pointer;
 }
-.clientEntry:nth-child(even) {
-  background-color: var(--color3);
-}
-.clientEntry.selected {
+.clientsList .clientEntry.selected {
   border: 1px solid var(--color2);
 }
 

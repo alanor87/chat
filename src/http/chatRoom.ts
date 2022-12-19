@@ -64,7 +64,7 @@ class ChatRoom {
     client!.addConnection(connection);
   }
 
-  broadcast(message: WsMessageType) {
+  broadcast(message: any) {
     this.getAllClientConnections().forEach((connection) => {
       if (connection) connection.send(s(message));
     });

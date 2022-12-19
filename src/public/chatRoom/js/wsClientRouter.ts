@@ -7,6 +7,7 @@ import {
 import { refs } from "./refs";
 import { jsonParse as p } from "../../../helpers/jsonParse.js";
 import { sessionData } from "../../common/sessionData.js";
+import { clientsListEntries } from "./clientsList.js";
 
 export function wsClientRouter(message: string) {
   const parsedWsMessage: WsMessageType = p(message);
@@ -21,11 +22,15 @@ export function wsClientRouter(message: string) {
     case "new_message_broadcast": {
       const { fromClientId, fromClientNickname, toClientId, message } =
         parsedWsMessage.data;
-        const {messagesList} = refs;
+      const { messagesList } = refs;
       const messageType =
         fromClientId === sessionData.clientId ? "outcoming" : "incoming";
       const wasScrolledToBottom =
-      Math.abs(messagesList!.scrollHeight - messagesList!.clientHeight - messagesList!.scrollTop) < 1
+        Math.abs(
+          messagesList!.scrollHeight -
+            messagesList!.clientHeight -
+            messagesList!.scrollTop
+        ) < 1;
       createMessageElement({
         messageType,
         message,
@@ -34,7 +39,8 @@ export function wsClientRouter(message: string) {
         toClientId,
       });
       // Scrolling on new message only if the messages list was scrolled to bottom on message arrival.
-      if(wasScrolledToBottom) messagesList?.scrollTo({top : messagesList?.clientHeight});
+      if (wasScrolledToBottom)
+        messagesList?.scrollTo({ top: messagesList?.clientHeight });
       break;
     }
 
@@ -45,7 +51,22 @@ export function wsClientRouter(message: string) {
     }
 
     case "announcement_broadcast": {
-      const { message } = parsedWsMessage.data;
+      const { message, reason } = parsedWsMessage.data;
+      switch (reason) {
+        case "client_join": {
+          const { nickname, clientId } = parsedWsMessage.data;
+          if (clientsListEntries.find((client) => client.clientId === clientId))
+            break;
+          clientsListEntries.push({
+            nickname,
+            clientId,
+          });
+          break;
+        }
+        case "client_exit": {
+          break;
+        }
+      }
       createAnnouncementElement(message);
       break;
     }

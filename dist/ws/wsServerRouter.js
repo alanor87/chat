@@ -34,7 +34,7 @@ function wsServerRouter(currentConnection, wsMessage) {
                 const nickname = chatRoom.getClientById(clientId).nickname;
                 const newClientBroadcastMessage = {
                     method: "announcement_broadcast",
-                    data: { message: nickname + " has joined." },
+                    data: { message: nickname + " has joined.", reason: 'client_join', nickname, clientId },
                 };
                 const newClientWelcomeMessage = {
                     method: "welcome_message",

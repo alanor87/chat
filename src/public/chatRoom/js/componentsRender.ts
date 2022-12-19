@@ -42,3 +42,22 @@ export function createAnnouncementElement(notification: string) {
     refs.notificationStackBlock!.removeChild(messageElement);
   }, 3000);
 }
+
+function createClientEntryElement(
+  nickname: string,
+  clientId: string
+) {
+  const newClientEntry = document.createElement("li");
+  newClientEntry.classList.add("clinetEntry");
+  newClientEntry.setAttribute('data-clientId', clientId);
+  newClientEntry.innerText = nickname;
+  return newClientEntry;
+}
+
+export function clientsListRender(clientsList: any[]) {
+  console.log(clientsList);
+  const clientsListElements = clientsList.map(({nickname, clientId}) => createClientEntryElement(nickname, clientId));
+  refs.clientsList!.innerHTML = '';
+ console.log('appending : ', clientsListElements )
+  refs.clientsList!.append(...clientsListElements);
+}

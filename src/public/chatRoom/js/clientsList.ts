@@ -1,7 +1,14 @@
-import { createObservableArray } from "../../../helpers/createObservableArray"
-import { clientsListRender } from "./componentsRender"
+import { ClientListEntryType } from "../../../commonTypes/ChatRoomTypes";
+import {
+  ObservableList,
+} from "../../../helpers/createObservableList";
+import { clientsListRender } from "./componentsRender";
 
-const clientsListEmpty = [];
-const clientsListEntries = createObservableArray(clientsListEmpty, {'push' : clientsListRender})
+let clientsListEntries = new ObservableList<ClientListEntryType>({
+  onAdd: clientsListRender,
+  onRemove: clientsListRender,
+  onEdit: clientsListRender,
+  onEditAll: clientsListRender,
+});
 
-export {clientsListEntries}
+export { clientsListEntries };

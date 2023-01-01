@@ -2,6 +2,7 @@
   --color1: black;
   --color2: rgb(23, 167, 25);
   --color3: rgba(23, 167, 25, 0.5);
+  --color4: rgba(244, 12, 51, 0.5);
 }
 
 * {
@@ -142,10 +143,14 @@ svg.icon.active {
   padding: 10px;
 }
 .clientsList .clientEntry {
+  padding: 5px;
   cursor: pointer;
 }
+.clientsList .clientEntry:hover {
+  background-color: var(--color3);
+}
 .clientsList .clientEntry.selected {
-  border: 1px solid var(--color2);
+  background-color: var(--color3);
 }
 
 .messagesList {
@@ -163,18 +168,24 @@ svg.icon.active {
   word-break: break-all;
   border: 1px solid var(--color1);
 }
+.message.welcome {
+  align-self: center;
+}
 .message.outcoming {
   align-self: flex-end;
 }
 .message.incoming {
   align-self: flex-start;
 }
-.message.incoming span {
-  cursor: pointer;
-  background-color: var(--color3);
+.message > span {
+  padding: 5px;
 }
-.message.welcome {
-  align-self: center;
+.message .to {
+  background-color: var(--color4);
+}
+.message .from {
+  color: var(--color1);
+  background-color: var(--color3);
 }
 
 .modal {

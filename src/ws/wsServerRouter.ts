@@ -27,8 +27,10 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
 
         // Checking if the client already has connection - just reloaded the page.
         if (chatRoom?.getClientById(clientId)?.currentConnection) {
-          console.log("Client " + 
-            color("yellow", clientId) + " restored dropped connection."
+          console.log(
+            "Client " +
+              color("yellow", clientId) +
+              " restored dropped connection."
           );
           const client = chatRoom!.getClientById(clientId);
           client!.currentConnection = currentConnection;
@@ -43,7 +45,12 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
 
         const newClientBroadcastMessage: WsMessageType = {
           method: "announcement_broadcast",
-          data: { message : nickname + " has joined.", reason: 'client_join', nickname, clientId },
+          data: {
+            message: nickname + " has joined.",
+            reason: "client_join",
+            nickname,
+            clientId,
+          },
         };
 
         const newClientWelcomeMessage: WsMessageType = {
@@ -72,7 +79,7 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
 
     case "new_message": {
       try {
-        const { chatRoomId, fromClientId, message } =
+        const { chatRoomId, fromClientId, toClientId, message } =
           parsedWsMessage.data;
 
         const chatRoom = getChatRoomById(chatRoomId);
@@ -83,7 +90,7 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
 
         const newBroadcastMessage: WsMessageType = {
           method: "new_message_broadcast",
-          data: { message, fromClientId, fromClientNickname },
+          data: { message, fromClientId, fromClientNickname, toClientId },
         };
 
         chatRoom.clients.forEach(({ currentConnection }) => {

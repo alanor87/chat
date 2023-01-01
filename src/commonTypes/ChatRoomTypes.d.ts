@@ -18,5 +18,11 @@ export type SessionDataType = {
   token: string;
 }
 
+export type ClientListEntryType = {
+  nickname: string;
+  clientId: string;
+  selected?: boolean;
+}
+
 
 export type MessageType = "incoming" | "outcoming" | "welcome";

@@ -17,7 +17,7 @@ function exitChatRoom(res: ServerResponse, reqData: RequestDataType) {
     const announcementMessage = {
       method: 'announcement_broadcast',
       data : {
-        message: client?.nickname + ' has left the chat room.', reason: 'client_exit'
+        message: client?.nickname + ' has left the chat room.', reason: 'client_exit', clientId
       }
     }
 

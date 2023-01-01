@@ -13,6 +13,17 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
 
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+
 function __awaiter(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -51,6 +62,29 @@ function __generator(thisArg, body) {
     }
 }
 
+function __spreadArray(to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+}
+
+function __classPrivateFieldGet(receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+}
+
+function __classPrivateFieldSet(receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+}
+
 var refs = {
     userInput: document.querySelector("#userInput"),
     sendMessageButton: document.querySelector("#sendMessageButton"),
@@ -71,25 +105,37 @@ function logout(message) {
 }
 
 function createMessageElement(_a) {
-    var messageType = _a.messageType, message = _a.message; _a.fromClientId; var fromClientNickname = _a.fromClientNickname;
+    var messageType = _a.messageType, message = _a.message, toClientNickname = _a.toClientNickname, fromClientNickname = _a.fromClientNickname;
     var messageElement = document.createElement("div");
     messageElement.classList.add("message", messageType);
+    var appendToClientTag = function (nickname) {
+        var to = document.createElement("span");
+        to.classList.add("to");
+        to.innerText = "@" + nickname;
+        messageElement.append(to, ", ");
+    };
+    var appendFromClientTag = function (nickname) {
+        var from = document.createElement("span");
+        from.classList.add("from");
+        from.innerText = nickname;
+        messageElement.append(from, "  :  ");
+    };
     switch (messageType) {
         case "welcome": {
             messageElement.innerText = message;
             break;
         }
-        case "incoming": {
-            var from = document.createElement("span");
-            from.innerText = fromClientNickname || "anon";
-            messageElement.append(from, "  :  ", message);
+        case "outcoming": {
+            if (toClientNickname)
+                appendToClientTag(toClientNickname);
+            messageElement.append(message);
             break;
         }
-        case "outcoming": {
-            var from = document.createElement("span");
-            from.innerText = "you : ";
-            messageElement.appendChild(from);
-            messageElement.innerText = message;
+        case "incoming": {
+            appendFromClientTag(fromClientNickname || '');
+            if (toClientNickname)
+                appendToClientTag(toClientNickname);
+            messageElement.append(message);
             break;
         }
     }
@@ -104,22 +150,21 @@ function createAnnouncementElement(notification) {
         refs.notificationStackBlock.removeChild(messageElement);
     }, 3000);
 }
-function createClientEntryElement(nickname, clientId) {
+function createClientEntryElement(clientListEntry) {
     var newClientEntry = document.createElement("li");
-    newClientEntry.classList.add("clinetEntry");
-    newClientEntry.setAttribute('data-clientId', clientId);
-    newClientEntry.innerText = nickname;
+    newClientEntry.classList.add("clientEntry");
+    if (clientListEntry.selected)
+        newClientEntry.classList.add("selected");
+    newClientEntry.setAttribute("data-client-id", clientListEntry.clientId);
+    newClientEntry.innerText = clientListEntry.nickname;
     return newClientEntry;
 }
 function clientsListRender(clientsList) {
     var _a;
-    console.log(clientsList);
-    var clientsListElements = clientsList.map(function (_a) {
-        var nickname = _a.nickname, clientId = _a.clientId;
-        return createClientEntryElement(nickname, clientId);
+    var clientsListElements = clientsList.map(function (clientListEntry) {
+        return createClientEntryElement(clientListEntry);
     });
-    refs.clientsList.innerHTML = '';
-    console.log('appending : ', clientsListElements);
+    refs.clientsList.innerHTML = "";
     (_a = refs.clientsList).append.apply(_a, clientsListElements);
 }
 
@@ -136,25 +181,93 @@ var sessionData = (_a = {},
     _a["isAdmin"] = "",
     _a);
 
-function createObservableArray(arr, callbacks) {
-    Object.keys(callbacks).forEach(function (method) {
-        if (!Array.prototype.hasOwnProperty(method))
-            return;
-        // @ts-ignore
-        arr[method] = function () {
-            // @ts-ignore
-            var res = Array.prototype[method].apply(arr, arguments);
-            callbacks[method](arr);
-            return res;
-        };
+/** Creating an array instance with callbacks being hooked to defined array methods.
+ * @param callbacks : object with keys - names of the array (or custom) methods to be redefined, and values - callbacks, that
+ * are hooked to these methods. Callback gets the array as an argument.
+ */
+var _ObservableList_list;
+/** Creating of observable array of objects (not literals)
+ * @namespace {T} ObservableList
+ * @param { [key in ListMethods]: (args?: any) => void } callbacks - list of objects mapped to observable array events :
+ * "onAdd" | "onRemove" | "onEdit" | "onEditAll".
+ * Each of events is a field name -  callback os the value.
+ * The callback is given the actual elements list as an argument on it's call.
+ */
+var ObservableList = /** @class */ (function () {
+    function ObservableList(callbacks) {
+        _ObservableList_list.set(this, void 0);
+        this.callbacks = callbacks;
+        __classPrivateFieldSet(this, _ObservableList_list, [], "f");
+    }
+    Object.defineProperty(ObservableList.prototype, "getAll", {
+        get: function () {
+            return __classPrivateFieldGet(this, _ObservableList_list, "f");
+        },
+        enumerable: false,
+        configurable: true
     });
-    return arr;
-}
+    /** Adding element to list */
+    ObservableList.prototype.add = function (element) {
+        var _a;
+        __classPrivateFieldSet(this, _ObservableList_list, __spreadArray(__spreadArray([], __classPrivateFieldGet(this, _ObservableList_list, "f"), true), [element], false), "f");
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onAdd(__classPrivateFieldGet(this, _ObservableList_list, "f"));
+    };
+    /** Edit list element
+     * @param  { field: keyof T; value: string | undefined } elementToEdit - the field name and field value of the element neede to be edited.
+     * @param { Partial<T>} newData - the field name to change and the new value for it.
+     */
+    ObservableList.prototype.edit = function (_a, newData) {
+        var _b;
+        var field = _a.field, value = _a.value;
+        if (!field || !value)
+            return;
+        var indexTochange = __classPrivateFieldGet(this, _ObservableList_list, "f").findIndex(function (element) {
+            return element[field] === value;
+        });
+        var newList = __spreadArray([], __classPrivateFieldGet(this, _ObservableList_list, "f"), true);
+        newList[indexTochange] = __assign(__assign({}, newList[indexTochange]), newData);
+        __classPrivateFieldSet(this, _ObservableList_list, __spreadArray([], newList, true), "f");
+        (_b = this.callbacks) === null || _b === void 0 ? void 0 : _b.onEdit(__classPrivateFieldGet(this, _ObservableList_list, "f"));
+    };
+    /** Edit all list elements.
+     *  @param {field: keyof T; value: string | undefined }  newData - the field name to change for all list elements and the new value for it.
+     */
+    ObservableList.prototype.editAll = function (newData) {
+        var _a;
+        __classPrivateFieldSet(this, _ObservableList_list, __classPrivateFieldGet(this, _ObservableList_list, "f").map(function (entry) { return (__assign(__assign({}, entry), newData)); }), "f");
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onEditAll(__classPrivateFieldGet(this, _ObservableList_list, "f"));
+    };
+    /** Removing one element.
+     *  @param {field: keyof T; value: string | undefined } elementToRemove  - the field name to change for all list elements and the new value for it.
+     */
+    ObservableList.prototype.remove = function (_a) {
+        var _b;
+        var field = _a.field, value = _a.value;
+        __classPrivateFieldSet(this, _ObservableList_list, __classPrivateFieldGet(this, _ObservableList_list, "f").filter(function (element) { return element[field] !== value; }), "f");
+        (_b = this.callbacks) === null || _b === void 0 ? void 0 : _b.onRemove(__classPrivateFieldGet(this, _ObservableList_list, "f"));
+    };
+    /** Finding one element.
+     *  @param {field: keyof T; value: string | undefined } elementToFind  - the field name to change for all list elements and the new value for it.
+     */
+    ObservableList.prototype.find = function (_a) {
+        var field = _a.field, value = _a.value;
+        if (!value)
+            return undefined;
+        return __classPrivateFieldGet(this, _ObservableList_list, "f").find(function (element) { return element[field] === value; });
+    };
+    return ObservableList;
+}());
+_ObservableList_list = new WeakMap();
 
-var clientsListEmpty = [];
-var clientsListEntries = createObservableArray(clientsListEmpty, { 'push': clientsListRender });
+var clientsListEntries = new ObservableList({
+    onAdd: clientsListRender,
+    onRemove: clientsListRender,
+    onEdit: clientsListRender,
+    onEditAll: clientsListRender,
+});
 
 function wsClientRouter(message) {
+    var _a;
     var parsedWsMessage = jsonParse(message);
     switch (parsedWsMessage.method) {
         // Connection is automatically closed by server in case of auth failure, logging out.
@@ -165,18 +278,18 @@ function wsClientRouter(message) {
             break;
         }
         case "new_message_broadcast": {
-            var _a = parsedWsMessage.data, fromClientId = _a.fromClientId, fromClientNickname = _a.fromClientNickname, toClientId = _a.toClientId, message_1 = _a.message;
+            var _b = parsedWsMessage.data, fromClientId = _b.fromClientId, fromClientNickname = _b.fromClientNickname, toClientId = _b.toClientId, message_1 = _b.message;
             var messagesList = refs.messagesList;
             var messageType = fromClientId === sessionData.clientId ? "outcoming" : "incoming";
             var wasScrolledToBottom = Math.abs(messagesList.scrollHeight -
                 messagesList.clientHeight -
                 messagesList.scrollTop) < 1;
+            var toClientNickname = (_a = clientsListEntries.find({ field: 'clientId', value: toClientId })) === null || _a === void 0 ? void 0 : _a.nickname;
             createMessageElement({
                 messageType: messageType,
                 message: message_1,
-                fromClientId: fromClientId,
                 fromClientNickname: fromClientNickname,
-                toClientId: toClientId,
+                toClientNickname: toClientNickname,
             });
             // Scrolling on new message only if the messages list was scrolled to bottom on message arrival.
             if (wasScrolledToBottom)
@@ -189,16 +302,21 @@ function wsClientRouter(message) {
             break;
         }
         case "announcement_broadcast": {
-            var _b = parsedWsMessage.data, message_3 = _b.message, reason = _b.reason;
+            var _c = parsedWsMessage.data, message_3 = _c.message, reason = _c.reason;
             switch (reason) {
                 case "client_join": {
-                    var _c = parsedWsMessage.data, nickname = _c.nickname, clientId_1 = _c.clientId;
-                    if (clientsListEntries.find(function (client) { return client.clientId === clientId_1; }))
+                    var _d = parsedWsMessage.data, nickname = _d.nickname, clientId = _d.clientId;
+                    if (clientsListEntries.find({ field: 'clientId', value: clientId }))
                         break;
-                    clientsListEntries.push({
+                    clientsListEntries.add({
                         nickname: nickname,
-                        clientId: clientId_1,
+                        clientId: clientId,
                     });
+                    break;
+                }
+                case "client_exit": {
+                    var clientId = parsedWsMessage.data.clientId;
+                    clientsListEntries.remove({ field: 'clientId', value: clientId });
                     break;
                 }
             }
@@ -212,7 +330,7 @@ function jsonStringify(object) {
     return JSON.stringify(object);
 }
 
-var selectedRecipientId;
+var selectedClienttId;
 var wsClient;
 var pingIntervalId;
 function startPing() {
@@ -224,21 +342,45 @@ function startPing() {
 function stopPing() {
     clearInterval(pingIntervalId);
 }
+function onClientEntryClick(e) {
+    try {
+        var chosenEntry = e.target;
+        if (chosenEntry.classList.contains("clientEntry")) {
+            selectedClienttId = chosenEntry.dataset.clientId;
+            var clientEntry = clientsListEntries.find({
+                field: "clientId",
+                value: selectedClienttId,
+            });
+            refs.userInput.value = "@".concat(clientEntry === null || clientEntry === void 0 ? void 0 : clientEntry.nickname, ", ");
+            var isSelected = clientEntry === null || clientEntry === void 0 ? void 0 : clientEntry.selected;
+            clientsListEntries.editAll({ selected: false });
+            clientsListEntries.edit({ field: "clientId", value: selectedClienttId }, { selected: !isSelected });
+        }
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
 function sendMessage() {
-    if (!refs.userInput.value)
+    var _a, _b;
+    if (!((_a = refs.userInput) === null || _a === void 0 ? void 0 : _a.value))
         return;
-    var messageText = refs.userInput.value;
+    var messageText = ((_b = refs.userInput) === null || _b === void 0 ? void 0 : _b.value.replace(/@.*,/, '')) || '';
+    console.log(messageText);
     var newClientMessage = {
         method: "new_message",
         data: {
             chatRoomId: sessionData.chatRoomId,
             fromClientId: sessionData.clientId,
+            toClientId: selectedClienttId,
             message: messageText,
         },
     };
     var message = jsonStringify(newClientMessage);
     refs.userInput.value = "";
+    clientsListEntries.editAll({ selected: false });
     wsClient.send(message);
+    selectedClienttId = undefined;
 }
 function onInputEnterPress(e) {
     if (e.key === "Enter")
@@ -289,14 +431,7 @@ function eventListenersInit() {
         refs.inviteLinkCopyButton.addEventListener("click", inviteLinkCopy);
         refs.clientsListButton.addEventListener("click", toggleClientsList);
         refs.exitChatButton.addEventListener("click", exitChat);
-        window.addEventListener("click", function (e) {
-            var chosenEntry = e.target;
-            var classList = chosenEntry.classList.value;
-            if (classList.includes("clientEntry")) {
-                selectedRecipientId = chosenEntry.id;
-                chosenEntry.classList.add("selected");
-            }
-        });
+        refs.clientsList.addEventListener("click", onClientEntryClick);
     }
     catch (e) {
         console.log(e);
@@ -346,7 +481,9 @@ function chatRoomAuthorization() {
                 case 3: return [4 /*yield*/, response.json()];
                 case 4:
                     _a = _b.sent(), isAdmin = _a.isAdmin, clientsList = _a.clientsList;
-                    clientsList.forEach(function (client) { return clientsListEntries.push(client); });
+                    clientsList.forEach(function (client) {
+                        clientsListEntries.add(client);
+                    });
                     sessionStorage.setItem("isAdmin", isAdmin);
                     sessionData.isAdmin = isAdmin;
                     return [2 /*return*/];

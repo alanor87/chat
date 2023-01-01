@@ -31,12 +31,12 @@ export function wsClientRouter(message: string) {
             messagesList!.clientHeight -
             messagesList!.scrollTop
         ) < 1;
+        const toClientNickname = clientsListEntries.find({field : 'clientId', value :toClientId})?.nickname;
       createMessageElement({
         messageType,
         message,
-        fromClientId,
         fromClientNickname,
-        toClientId,
+        toClientNickname,
       });
       // Scrolling on new message only if the messages list was scrolled to bottom on message arrival.
       if (wasScrolledToBottom)
@@ -55,15 +55,20 @@ export function wsClientRouter(message: string) {
       switch (reason) {
         case "client_join": {
           const { nickname, clientId } = parsedWsMessage.data;
-          if (clientsListEntries.find((client) => client.clientId === clientId))
+          if (clientsListEntries.find({field : 'clientId', value : clientId}))
             break;
-          clientsListEntries.push({
+          clientsListEntries.add({
             nickname,
             clientId,
           });
           break;
         }
         case "client_exit": {
+          const { clientId } = parsedWsMessage.data;
+          clientsListEntries.remove({field : 'clientId', value : clientId});
+          break;
+        }
+        default: {
           break;
         }
       }

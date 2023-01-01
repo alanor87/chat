@@ -23,7 +23,8 @@ function wsServerRouter(currentConnection, wsMessage) {
                 // Checking if the client already has connection - just reloaded the page.
                 if ((_a = chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.getClientById(clientId)) === null || _a === void 0 ? void 0 : _a.currentConnection) {
                     console.log("Client " +
-                        color("yellow", clientId) + " restored dropped connection.");
+                        color("yellow", clientId) +
+                        " restored dropped connection.");
                     const client = chatRoom.getClientById(clientId);
                     client.currentConnection = currentConnection;
                     client.currentConnection.send(s(responseSuccess));
@@ -34,7 +35,12 @@ function wsServerRouter(currentConnection, wsMessage) {
                 const nickname = chatRoom.getClientById(clientId).nickname;
                 const newClientBroadcastMessage = {
                     method: "announcement_broadcast",
-                    data: { message: nickname + " has joined.", reason: 'client_join', nickname, clientId },
+                    data: {
+                        message: nickname + " has joined.",
+                        reason: "client_join",
+                        nickname,
+                        clientId,
+                    },
                 };
                 const newClientWelcomeMessage = {
                     method: "welcome_message",
@@ -60,14 +66,14 @@ function wsServerRouter(currentConnection, wsMessage) {
         }
         case "new_message": {
             try {
-                const { chatRoomId, fromClientId, message } = parsedWsMessage.data;
+                const { chatRoomId, fromClientId, toClientId, message } = parsedWsMessage.data;
                 const chatRoom = getChatRoomById(chatRoomId);
                 if (!chatRoom)
                     throw Error("Chat room does not exist");
                 const fromClientNickname = chatRoom.getClientById(fromClientId).nickname;
                 const newBroadcastMessage = {
                     method: "new_message_broadcast",
-                    data: { message, fromClientId, fromClientNickname },
+                    data: { message, fromClientId, fromClientNickname, toClientId },
                 };
                 chatRoom.clients.forEach(({ currentConnection }) => {
                     if (!currentConnection)

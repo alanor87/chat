@@ -1,5 +1,4 @@
 import { WebSocket } from "ws";
-import { WsMessageType } from "../commonTypes/WsTypes.js";
 import { color } from "../helpers/logging.js";
 import { jsonStringify as s } from "../helpers/jsonStringify.js";
 import { ChatClient } from "./chatClient.js";
@@ -79,8 +78,7 @@ function getChatRoomById(id: string) {
 
 function deleteChatRoom(chatRoomId: string, reason = 'not defined') {
   console.log('Deleting chat room ' + color("yellow",chatRoomId) + '. Reason : \n ' + reason);
-  getChatRoomById(chatRoomId)?.clients.forEach(client => client?.currentConnection?.close(1000, reason))
-  chatRoomsList = chatRoomsList.filter((chatRoom) => chatRoom.id !== chatRoomId);
+  getChatRoomById(chatRoomId)?.clients.forEach(client => client?.currentConnection?.close(1000, reason));
 }
 
 export { ChatRoom, chatRoomsList, getChatRoomById, deleteChatRoom };

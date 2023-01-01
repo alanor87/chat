@@ -3,7 +3,7 @@ export type RefsType = {
   sendMessageButton: HTMLButtonElement | null;
   messagesList: HTMLDivElement | null;
   sideBar: HTMLDivElement | null;
-  clientsList: HTMLDivElement | null;
+  clientsList: HTMLUListElement | null;
   inviteLinkCopyButton: HTMLButtonElement | null;
   clientsListButton: HTMLButtonElement | null;
   exitChatButton: HTMLButtonElement | null;
@@ -13,8 +13,8 @@ export type RefsType = {
 export type CreateMessageArgsType = {
   messageType: ChatHistoryMessageType,
   message: string,
-  fromClientId?: string,
-  fromClientNickname?: string
+  fromClientNickname?: string,
+  toClientNickname?: string
   toClientId?: string,
 }
 

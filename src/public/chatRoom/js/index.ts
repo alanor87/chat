@@ -6,8 +6,9 @@ import { sessionData } from "../../common/sessionData.js";
 import { WsMessageType } from "../../../commonTypes/WsTypes.js";
 import { createAnnouncementElement } from "./componentsRender.js";
 import { clientsListEntries } from "./clientsList.js";
+import { ClientListEntryType } from "../../../commonTypes/ChatRoomTypes.js";
 
-let selectedRecipientId: string;
+let selectedClienttId: string | undefined;
 let wsClient: WebSocket;
 let pingIntervalId: any;
 
@@ -22,20 +23,48 @@ function stopPing() {
   clearInterval(pingIntervalId);
 }
 
+function onClientEntryClick(e: MouseEvent) {
+  try {
+    const chosenEntry = e.target as HTMLDivElement;
+    if (chosenEntry.classList.contains("clientEntry")) {
+      selectedClienttId = chosenEntry.dataset.clientId;
+      
+      const clientEntry = clientsListEntries.find({
+        field: "clientId",
+        value: selectedClienttId,
+      });
+
+      refs.userInput!.value = `@${clientEntry?.nickname}, `;
+      const isSelected = clientEntry?.selected;
+      clientsListEntries.editAll({ selected: false });
+      clientsListEntries.edit(
+        { field: "clientId", value: selectedClienttId },
+        { selected: !isSelected }
+      );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 function sendMessage() {
-  if (!refs.userInput!.value) return;
-  const messageText = refs.userInput!.value;
+  if (!refs.userInput?.value) return;
+  const messageText = refs.userInput?.value.replace(/@.*,/, '') || '';
+  console.log(messageText);
   const newClientMessage: WsMessageType = {
     method: "new_message",
     data: {
       chatRoomId: sessionData.chatRoomId,
       fromClientId: sessionData.clientId,
+      toClientId: selectedClienttId,
       message: messageText,
     },
   };
   const message = s(newClientMessage);
   refs.userInput!.value = "";
+  clientsListEntries.editAll({ selected: false });
   wsClient.send(message);
+  selectedClienttId = undefined;
 }
 
 function onInputEnterPress(e: any) {
@@ -63,18 +92,6 @@ async function exitChat() {
   await fetch("api/exitChatRoom", requestOptions);
 }
 
-function setClientsList(clients: [string]) {
-  const clientsEntries = clients.map((clientId) => {
-    const entry = document.createElement("div");
-    entry.classList.add("clientEntry");
-    entry.innerText = clientId;
-    entry.id = clientId;
-    return entry;
-  });
-  refs.clientsList!.innerHTML = "";
-  refs.clientsList!.append(...clientsEntries);
-}
-
 function sessionStorageInit() {
   Object.keys(sessionData).forEach((item) => {
     sessionData[item] = sessionStorage.getItem(item);
@@ -95,15 +112,7 @@ function eventListenersInit() {
     refs.inviteLinkCopyButton!.addEventListener("click", inviteLinkCopy);
     refs.clientsListButton!.addEventListener("click", toggleClientsList);
     refs.exitChatButton!.addEventListener("click", exitChat);
-
-    window.addEventListener("click", (e) => {
-      const chosenEntry = e.target as HTMLDivElement;
-      const classList = chosenEntry.classList.value;
-      if (classList.includes("clientEntry")) {
-        selectedRecipientId = chosenEntry.id;
-        chosenEntry.classList.add("selected");
-      }
-    });
+    refs.clientsList!.addEventListener("click", onClientEntryClick);
   } catch (e: any) {
     console.log(e);
   }
@@ -149,7 +158,9 @@ async function chatRoomAuthorization() {
     throw new Error("Authorization failure. " + responceText);
   }
   const { isAdmin, clientsList } = await response.json();
-  clientsList.forEach(client => clientsListEntries.push(client));
+  clientsList.forEach((client: ClientListEntryType) => {
+    clientsListEntries.add(client);
+  });
   sessionStorage.setItem("isAdmin", isAdmin);
   sessionData.isAdmin = isAdmin;
 }

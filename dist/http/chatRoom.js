@@ -54,6 +54,5 @@ function deleteChatRoom(chatRoomId, reason = 'not defined') {
     var _a;
     console.log('Deleting chat room ' + color("yellow", chatRoomId) + '. Reason : \n ' + reason);
     (_a = getChatRoomById(chatRoomId)) === null || _a === void 0 ? void 0 : _a.clients.forEach(client => { var _a; return (_a = client === null || client === void 0 ? void 0 : client.currentConnection) === null || _a === void 0 ? void 0 : _a.close(1000, reason); });
-    chatRoomsList = chatRoomsList.filter((chatRoom) => chatRoom.id !== chatRoomId);
 }
 export { ChatRoom, chatRoomsList, getChatRoomById, deleteChatRoom };

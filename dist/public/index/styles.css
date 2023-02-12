@@ -87,6 +87,11 @@ svg.icon.active {
 .startPageWrapper input {
   width: 100%;
 }
+@media screen and (max-width: 500px) {
+  .startPageWrapper {
+    --formsSideMargins: 1%;
+  }
+}
 
 .startButtonsWrapper {
   display: flex;
@@ -98,7 +103,7 @@ svg.icon.active {
 .startButtonsWrapper.hidden {
   opacity: 0.6;
 }
-@media (max-width: 425px) {
+@media screen and (max-width: 500px) {
   .startButtonsWrapper {
     height: 50%;
     flex-direction: column;

@@ -90,6 +90,7 @@ var refs = {
     sendMessageButton: document.querySelector("#sendMessageButton"),
     messagesList: document.querySelector("#messagesList"),
     sideBar: document.querySelector("#sideBar"),
+    sideBarCloseButton: document.querySelector("#sideBarCloseButton"),
     clientsList: document.querySelector("#clientsList"),
     inviteLinkCopyButton: document.querySelector("#inviteLinkCopyButton"),
     clientsListButton: document.querySelector("#clientsListButton"),
@@ -365,7 +366,7 @@ function sendMessage() {
     var _a, _b;
     if (!((_a = refs.userInput) === null || _a === void 0 ? void 0 : _a.value))
         return;
-    var messageText = ((_b = refs.userInput) === null || _b === void 0 ? void 0 : _b.value.replace(/@.*,/, '')) || '';
+    var messageText = ((_b = refs.userInput) === null || _b === void 0 ? void 0 : _b.value.replace(/@.*,/, "")) || "";
     console.log(messageText);
     var newClientMessage = {
         method: "new_message",
@@ -390,8 +391,9 @@ function inviteLinkCopy() {
     window.navigator.clipboard.writeText(window.location.origin + "/?chatRoomId=" + sessionData.chatRoomId);
     createAnnouncementElement("Chat room link is copied to clipboard.");
 }
-function toggleClientsList() {
-    refs.sideBar.classList.toggle("hidden");
+function toggleSideBar() {
+    var display = getComputedStyle(refs.sideBar).display;
+    refs.sideBar.style.display = display === "flex" ? "none" : "flex";
 }
 function exitChat() {
     return __awaiter(this, void 0, void 0, function () {
@@ -429,7 +431,8 @@ function eventListenersInit() {
         refs.userInput.addEventListener("keypress", onInputEnterPress);
         refs.sendMessageButton.addEventListener("click", sendMessage);
         refs.inviteLinkCopyButton.addEventListener("click", inviteLinkCopy);
-        refs.clientsListButton.addEventListener("click", toggleClientsList);
+        refs.sideBarCloseButton.addEventListener("click", toggleSideBar);
+        refs.clientsListButton.addEventListener("click", toggleSideBar);
         refs.exitChatButton.addEventListener("click", exitChat);
         refs.clientsList.addEventListener("click", onClientEntryClick);
     }

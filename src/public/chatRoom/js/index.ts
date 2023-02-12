@@ -28,7 +28,7 @@ function onClientEntryClick(e: MouseEvent) {
     const chosenEntry = e.target as HTMLDivElement;
     if (chosenEntry.classList.contains("clientEntry")) {
       selectedClienttId = chosenEntry.dataset.clientId;
-      
+
       const clientEntry = clientsListEntries.find({
         field: "clientId",
         value: selectedClienttId,
@@ -49,7 +49,7 @@ function onClientEntryClick(e: MouseEvent) {
 
 function sendMessage() {
   if (!refs.userInput?.value) return;
-  const messageText = refs.userInput?.value.replace(/@.*,/, '') || '';
+  const messageText = refs.userInput?.value.replace(/@.*,/, "") || "";
   console.log(messageText);
   const newClientMessage: WsMessageType = {
     method: "new_message",
@@ -78,8 +78,9 @@ function inviteLinkCopy() {
   createAnnouncementElement("Chat room link is copied to clipboard.");
 }
 
-function toggleClientsList() {
-  refs.sideBar!.classList.toggle("hidden");
+function toggleSideBar() {
+  const display = getComputedStyle(refs.sideBar!).display;
+  refs.sideBar!.style.display = display === "flex" ? "none" : "flex";
 }
 
 async function exitChat() {
@@ -110,7 +111,8 @@ function eventListenersInit() {
     refs.userInput!.addEventListener("keypress", onInputEnterPress);
     refs.sendMessageButton!.addEventListener("click", sendMessage);
     refs.inviteLinkCopyButton!.addEventListener("click", inviteLinkCopy);
-    refs.clientsListButton!.addEventListener("click", toggleClientsList);
+    refs.sideBarCloseButton!.addEventListener("click", toggleSideBar);
+    refs.clientsListButton!.addEventListener("click", toggleSideBar);
     refs.exitChatButton!.addEventListener("click", exitChat);
     refs.clientsList!.addEventListener("click", onClientEntryClick);
   } catch (e: any) {

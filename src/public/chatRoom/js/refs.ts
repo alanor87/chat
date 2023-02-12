@@ -5,6 +5,7 @@ export const refs: RefsType = {
   sendMessageButton: document.querySelector("#sendMessageButton"),
   messagesList: document.querySelector("#messagesList"),
   sideBar: document.querySelector("#sideBar"),
+  sideBarCloseButton: document.querySelector("#sideBarCloseButton"),
   clientsList: document.querySelector("#clientsList"),
   inviteLinkCopyButton: document.querySelector("#inviteLinkCopyButton"),
   clientsListButton: document.querySelector("#clientsListButton"),

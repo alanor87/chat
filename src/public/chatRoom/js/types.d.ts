@@ -3,6 +3,7 @@ export type RefsType = {
   sendMessageButton: HTMLButtonElement | null;
   messagesList: HTMLDivElement | null;
   sideBar: HTMLDivElement | null;
+  sideBarCloseButton: HTMLDivElement | null;
   clientsList: HTMLUListElement | null;
   inviteLinkCopyButton: HTMLButtonElement | null;
   clientsListButton: HTMLButtonElement | null;

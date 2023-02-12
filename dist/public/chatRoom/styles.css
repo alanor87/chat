@@ -105,24 +105,22 @@ svg.icon.active {
 }
 
 .sideBar {
-  width: 30%;
+  width: 20%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 10px;
   border: 1px solid var(--color2);
 }
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 500px) {
   .sideBar {
+    display: none;
     position: absolute;
     top: 10px;
     left: 10px;
     width: calc(100vw - 20px);
     height: calc(100vh - 20px);
   }
-}
-.sideBar.hidden {
-  display: none;
 }
 
 .sideBarCloseButton {
@@ -131,7 +129,7 @@ svg.icon.active {
   top: 10px;
   right: 10px;
 }
-@media screen and (min-width: 400px) {
+@media screen and (min-width: 500px) {
   .sideBarCloseButton {
     display: none;
   }

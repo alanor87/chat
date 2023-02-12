@@ -21,6 +21,10 @@
   input {
     width: 100%;
   }
+
+  @media screen and (max-width: $mobileBreakpoint) {
+    --formsSideMargins: 1%;
+  }
 }
 
 .startButtonsWrapper {
@@ -34,7 +38,7 @@
     opacity: 0.6;
   }
 
-  @media (max-width: 425px) {
+  @media screen and (max-width: $mobileBreakpoint) {
     height: 50%;
     flex-direction: column;
     justify-content: space-around;

@@ -126,13 +126,13 @@ function inputsIntegrityCheck(formType) {
             if (createPasswordInput.value !== passwordInputRepeat.value)
                 throw Error("Passwords do not match.");
             if (!createNicknameInput.value) {
-                throw Error("Enter your nickname ывафыв.");
+                throw Error("Enter your nickname.");
             }
             break;
         }
         case "join": {
             if (!joinNicknameInput.value)
-                throw Error("Enter your nickname. sssss");
+                throw Error("Enter your nickname.");
             if (!joinChatRoomIdInput.value)
                 throw Error("Enter chat room id.");
             break;

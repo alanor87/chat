@@ -1,5 +1,5 @@
 :root {
-  --color1: black;
+  --color1: rgba(0,0,0, 0.3);
   --color2: rgb(23, 167, 25);
   --color3: rgba(23, 167, 25, 0.5);
   --color4: rgba(244, 12, 51, 0.5);
@@ -53,6 +53,10 @@ input {
   align-items: center;
 }
 
+p {
+  background-color: transparent;
+}
+
 svg.icon {
   width: 20px;
   height: 20px;
@@ -61,14 +65,6 @@ svg.icon {
 }
 svg.icon.active {
   background-color: var(--color1);
-}
-
-.hidden {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
-  pointer-events: none;
 }
 
 .main {
@@ -124,6 +120,9 @@ svg.icon.active {
     width: calc(100vw - 20px);
     height: calc(100vh - 20px);
   }
+}
+.sideBar.hidden {
+  display: none;
 }
 
 .sideBarCloseButton {

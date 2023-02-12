@@ -1,5 +1,5 @@
 :root {
-  --color1: black;
+  --color1: rgba(0,0,0, 0.3);
   --color2: rgb(23, 167, 25);
   --color3: rgba(23, 167, 25, 0.5);
   --color4: rgba(244, 12, 51, 0.5);
@@ -53,6 +53,10 @@ input {
   align-items: center;
 }
 
+p {
+  background-color: transparent;
+}
+
 svg.icon {
   width: 20px;
   height: 20px;
@@ -63,43 +67,67 @@ svg.icon.active {
   background-color: var(--color1);
 }
 
-.hidden {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
 .startPageWrapper {
+  position: relative;
   height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  margin: auto;
+  --formsSideMargins: 25%;
+  --transitionOptions: opacity 250ms linear, filter 250ms linear,
+    transform 250ms linear;
+}
+.startPageWrapper > div {
+  position: absolute;
+  top: 50%;
+  left: var(--formsSideMargins);
+  right: var(--formsSideMargins);
+  padding: 10px;
+  border: 1px solid var(--color2);
+  z-index: 1;
 }
 .startPageWrapper input {
   width: 100%;
 }
 
 .startButtonsWrapper {
-  width: 500px;
   display: flex;
   justify-content: space-around;
-  padding: 10px;
+  transform: scale(1) translateY(-50%);
+  filter: blur(0);
+  transition: var(--transitionOptions);
 }
-.startButtonsWrapper button {
-  padding: 10px;
+.startButtonsWrapper.hidden {
+  opacity: 0.6;
+}
+@media (max-width: 425px) {
+  .startButtonsWrapper {
+    height: 50%;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+}
+
+.createChatRoomForm,
+.joinChatRoomForm {
+  transform: scale(1) translateY(-50%);
+  opacity: 1;
+  filter: blur(0);
+  transition: var(--transitionOptions);
+}
+.createChatRoomForm > :not(:last-child),
+.joinChatRoomForm > :not(:last-child) {
+  margin-bottom: 10px;
 }
 
 .buttonsWrapper {
   display: flex;
   justify-content: space-around;
+  background-color: transparent;
 }
 
-.createChatRoomForm, .joinChatRoomForm {
-  width: 400px;
-  padding: 10px;
-}
-.createChatRoomForm > :not(:last-child), .joinChatRoomForm > :not(:last-child) {
-  margin-bottom: 10px;
+.hidden {
+  opacity: 0;
+  filter: blur(4px);
+  transform: scale(1.2) translateY(-50%);
+  pointer-events: none;
+  z-index: 0;
 }

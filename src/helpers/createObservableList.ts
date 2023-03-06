@@ -44,11 +44,11 @@ export class ObservableList<T> {
   /** Adding element to list */
   add(element: T) {
     this.#list = [...this.#list, element];
-    this.callbacks?.onAdd(this.#list);
+    this.callbacks?.onAdd(this.getAll);
   }
 
   /** Edit list element
-   * @param  { field: keyof T; value: string | undefined } elementToEdit - the field name and field value of the element neede to be edited.
+   * @param  { field: keyof T; value: string | undefined } elementToEdit - the field name and field value of the element needed to be edited.
    * @param { Partial<T>} newData - the field name to change and the new value for it.
    */
   edit(
@@ -62,27 +62,27 @@ export class ObservableList<T> {
     const newList = [...this.#list];
     newList[indexTochange] = { ...newList[indexTochange], ...newData };
     this.#list = [...newList];
-    this.callbacks?.onEdit(this.#list);
+    this.callbacks?.onEdit(this.getAll);
   }
 
   /** Edit all list elements.
-   *  @param {field: keyof T; value: string | undefined }  newData - the field name to change for all list elements and the new value for it.
+   *  @param {Partial<T>} newData - the field name to change for all list elements and the new value for it.
    */
   editAll(newData: Partial<T>) {
     this.#list = this.#list.map((entry) => ({ ...entry, ...newData }));
-    this.callbacks?.onEditAll(this.#list);
+    this.callbacks?.onEditAll(this.getAll);
   }
 
   /** Removing one element.
-   *  @param {field: keyof T; value: string | undefined } elementToRemove  - the field name to change for all list elements and the new value for it.
+   *  @param {field: keyof T; value: string | undefined } elementToRemove  - the field name and its value of the element to be removed.
    */
   remove({ field, value }: { field: keyof T; value: string | undefined }) {
     this.#list = this.#list.filter((element) => element[field] !== value);
-    this.callbacks?.onRemove(this.#list);
+    this.callbacks?.onRemove(this.getAll);
   }
 
   /** Finding one element.
-   *  @param {field: keyof T; value: string | undefined } elementToFind  - the field name to change for all list elements and the new value for it.
+   *  @param {field: keyof T; value: string | undefined } elementToFind  - the field name and its value of the element to be found.
    */
   find({ field, value }: { field: keyof T; value: string | undefined }) {
     if (!value) return undefined;

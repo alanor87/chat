@@ -34,7 +34,7 @@ const {
 function checkSessionData() {
   console.log('Checking session data');
   const sessionDataIsPresent = Object.keys(sessionData).every((key) =>
-    sessionStorage.getItem(key)
+    localStorage.getItem(key)
   );
   if (sessionDataIsPresent)
     window.location.assign(window.location.origin + "/chatRoom");
@@ -102,7 +102,7 @@ function chatRoomAddressCheck() {
 }
 
 /**
- * After successful login attempt or chat room creation session data is written to sessionStorage.
+ * After successful login attempt or chat room creation session data is written to localStorage.
  */
 function writeLocalSessionData({
   chatRoomId,
@@ -111,11 +111,11 @@ function writeLocalSessionData({
   token,
   isAdmin,
 }: SessionDataType) {
-  sessionStorage.setItem("chatRoomId", chatRoomId);
-  sessionStorage.setItem("clientId", clientId);
-  sessionStorage.setItem("nickname", nickname);
-  sessionStorage.setItem("token", token);
-  sessionStorage.setItem("isAdmin", isAdmin || "notAdmin");
+  localStorage.setItem("chatRoomId", chatRoomId);
+  localStorage.setItem("clientId", clientId);
+  localStorage.setItem("nickname", nickname);
+  localStorage.setItem("token", token);
+  localStorage.setItem("isAdmin", isAdmin || "notAdmin");
 }
 
 async function createChatRoomRequest() {

@@ -34,10 +34,10 @@ export class ObservableList {
     add(element) {
         var _a;
         __classPrivateFieldSet(this, _ObservableList_list, [...__classPrivateFieldGet(this, _ObservableList_list, "f"), element], "f");
-        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onAdd(__classPrivateFieldGet(this, _ObservableList_list, "f"));
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onAdd(this.getAll);
     }
     /** Edit list element
-     * @param  { field: keyof T; value: string | undefined } elementToEdit - the field name and field value of the element neede to be edited.
+     * @param  { field: keyof T; value: string | undefined } elementToEdit - the field name and field value of the element needed to be edited.
      * @param { Partial<T>} newData - the field name to change and the new value for it.
      */
     edit({ field, value }, newData) {
@@ -50,26 +50,26 @@ export class ObservableList {
         const newList = [...__classPrivateFieldGet(this, _ObservableList_list, "f")];
         newList[indexTochange] = Object.assign(Object.assign({}, newList[indexTochange]), newData);
         __classPrivateFieldSet(this, _ObservableList_list, [...newList], "f");
-        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onEdit(__classPrivateFieldGet(this, _ObservableList_list, "f"));
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onEdit(this.getAll);
     }
     /** Edit all list elements.
-     *  @param {field: keyof T; value: string | undefined }  newData - the field name to change for all list elements and the new value for it.
+     *  @param {Partial<T>} newData - the field name to change for all list elements and the new value for it.
      */
     editAll(newData) {
         var _a;
         __classPrivateFieldSet(this, _ObservableList_list, __classPrivateFieldGet(this, _ObservableList_list, "f").map((entry) => (Object.assign(Object.assign({}, entry), newData))), "f");
-        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onEditAll(__classPrivateFieldGet(this, _ObservableList_list, "f"));
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onEditAll(this.getAll);
     }
     /** Removing one element.
-     *  @param {field: keyof T; value: string | undefined } elementToRemove  - the field name to change for all list elements and the new value for it.
+     *  @param {field: keyof T; value: string | undefined } elementToRemove  - the field name and its value of the element to be removed.
      */
     remove({ field, value }) {
         var _a;
         __classPrivateFieldSet(this, _ObservableList_list, __classPrivateFieldGet(this, _ObservableList_list, "f").filter((element) => element[field] !== value), "f");
-        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onRemove(__classPrivateFieldGet(this, _ObservableList_list, "f"));
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onRemove(this.getAll);
     }
     /** Finding one element.
-     *  @param {field: keyof T; value: string | undefined } elementToFind  - the field name to change for all list elements and the new value for it.
+     *  @param {field: keyof T; value: string | undefined } elementToFind  - the field name and its value of the element to be found.
      */
     find({ field, value }) {
         if (!value)

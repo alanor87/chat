@@ -32,6 +32,8 @@
   padding: 10px;
 
   .clientEntry {
+    display: flex;
+    justify-content: space-between;
     padding: 5px;
     cursor: pointer;
 
@@ -41,6 +43,13 @@
 
     &.selected {
       background-color: var(--color3);
+    }
+
+    & svg {
+      color: var(--color4);
+    }
+    & svg.hidden {
+      display: none;
     }
   }
 }

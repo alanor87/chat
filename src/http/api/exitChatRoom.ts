@@ -21,13 +21,9 @@ function exitChatRoom(res: ServerResponse, reqData: RequestDataType) {
       }
     }
 
+    chatRoom?.deleteClientTimeoutClear(clientId);
     chatRoom?.broadcast(announcementMessage);
     chatRoom?.deleteClient(clientId);
-
-    if (chatRoom?.isAdmin(clientId, token)) {
-      deleteChatRoom(chatRoomId, "Admin has left, chat room is deleted.");
-      return;
-    }
 
     if (chatRoom?.clients.length === 0) {
       deleteChatRoom(

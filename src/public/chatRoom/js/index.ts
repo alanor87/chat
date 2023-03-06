@@ -14,7 +14,7 @@ let pingIntervalId: any;
 
 function startPing() {
   pingIntervalId = setInterval(() => {
-    if (wsClient.readyState == wsClient.OPEN)
+    if (wsClient.readyState === wsClient.OPEN)
       wsClient.send(s({ method: "ping", data: {} }));
   }, 10000);
 }
@@ -23,6 +23,9 @@ function stopPing() {
   clearInterval(pingIntervalId);
 }
 
+/** Even listener for the click on a client entry is assigned to the whole entries list,
+ * so no need to have a separate listener for each entry.
+ */
 function onClientEntryClick(e: MouseEvent) {
   try {
     const chosenEntry = e.target as HTMLDivElement;
@@ -35,6 +38,7 @@ function onClientEntryClick(e: MouseEvent) {
       });
 
       refs.userInput!.value = `@${clientEntry?.nickname}, `;
+      refs.userInput!.selectionEnd = refs.userInput!.value.length;
       const isSelected = clientEntry?.selected;
       clientsListEntries.editAll({ selected: false });
       clientsListEntries.edit(
@@ -49,7 +53,7 @@ function onClientEntryClick(e: MouseEvent) {
 
 function sendMessage() {
   if (!refs.userInput?.value) return;
-  const messageText = refs.userInput?.value.replace(/@.*,/, "") || "";
+  const messageText = refs.userInput?.value.replace(/@[^,]*,/, "") || "";
   console.log(messageText);
   const newClientMessage: WsMessageType = {
     method: "new_message",
@@ -93,9 +97,9 @@ async function exitChat() {
   await fetch("api/exitChatRoom", requestOptions);
 }
 
-function sessionStorageInit() {
+function localStorageInit() {
   Object.keys(sessionData).forEach((item) => {
-    sessionData[item] = sessionStorage.getItem(item);
+    sessionData[item] = localStorage.getItem(item);
     if (!sessionData[item])
       throw Error(item + " data is missing. Logging out.");
   });
@@ -160,16 +164,16 @@ async function chatRoomAuthorization() {
     throw new Error("Authorization failure. " + responceText);
   }
   const { isAdmin, clientsList } = await response.json();
-  clientsList.forEach((client: ClientListEntryType) => {
-    clientsListEntries.add(client);
-  });
-  sessionStorage.setItem("isAdmin", isAdmin);
+  clientsList.forEach((client: ClientListEntryType) =>
+    clientsListEntries.add(client)
+  );
+  localStorage.setItem("isAdmin", isAdmin);
   sessionData.isAdmin = isAdmin;
 }
 
 async function chatRoomInit() {
   try {
-    sessionStorageInit();
+    localStorageInit();
     await chatRoomAuthorization();
     adminComponentsInit();
     wsClientInit();

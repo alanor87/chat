@@ -13,17 +13,6 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
 
-var __assign = function() {
-    __assign = Object.assign || function __assign(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-
 function __awaiter(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -32,44 +21,6 @@ function __awaiter(thisArg, _arguments, P, generator) {
         function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-}
-
-function __generator(thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-}
-
-function __spreadArray(to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
 }
 
 function __classPrivateFieldGet(receiver, state, kind, f) {
@@ -85,7 +36,7 @@ function __classPrivateFieldSet(receiver, state, value, kind, f) {
     return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
 }
 
-var refs = {
+const refs = {
     userInput: document.querySelector("#userInput"),
     sendMessageButton: document.querySelector("#sendMessageButton"),
     messagesList: document.querySelector("#messagesList"),
@@ -98,25 +49,23 @@ var refs = {
     notificationStackBlock: document.querySelector("#notificationStackBlock"),
 };
 
-function logout(message) {
-    if (message === void 0) { message = "An error has occured, logging out."; }
+function logout(message = "An error has occured, logging out.") {
     alert(message);
-    sessionStorage.clear();
+    localStorage.clear();
     window.location.replace(window.location.origin);
 }
 
-function createMessageElement(_a) {
-    var messageType = _a.messageType, message = _a.message, toClientNickname = _a.toClientNickname, fromClientNickname = _a.fromClientNickname;
-    var messageElement = document.createElement("div");
+function createMessageElement({ messageType, message, toClientNickname, fromClientNickname, }) {
+    const messageElement = document.createElement("div");
     messageElement.classList.add("message", messageType);
-    var appendToClientTag = function (nickname) {
-        var to = document.createElement("span");
+    const appendToClientTag = (nickname) => {
+        const to = document.createElement("span");
         to.classList.add("to");
         to.innerText = "@" + nickname;
         messageElement.append(to, ", ");
     };
-    var appendFromClientTag = function (nickname) {
-        var from = document.createElement("span");
+    const appendFromClientTag = (nickname) => {
+        const from = document.createElement("span");
         from.classList.add("from");
         from.innerText = nickname;
         messageElement.append(from, "  :  ");
@@ -133,7 +82,7 @@ function createMessageElement(_a) {
             break;
         }
         case "incoming": {
-            appendFromClientTag(fromClientNickname || '');
+            appendFromClientTag(fromClientNickname || "");
             if (toClientNickname)
                 appendToClientTag(toClientNickname);
             messageElement.append(message);
@@ -143,44 +92,52 @@ function createMessageElement(_a) {
     refs.messagesList.appendChild(messageElement);
 }
 function createAnnouncementElement(notification) {
-    var messageElement = document.createElement("div");
+    const messageElement = document.createElement("div");
     messageElement.classList.add("notification");
     messageElement.innerText = notification;
     refs.notificationStackBlock.appendChild(messageElement);
-    setTimeout(function () {
+    setTimeout(() => {
         refs.notificationStackBlock.removeChild(messageElement);
     }, 3000);
 }
 function createClientEntryElement(clientListEntry) {
-    var newClientEntry = document.createElement("li");
+    const newClientEntry = document.createElement("li");
+    const disconnectedStatusIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    disconnectedStatusIcon.classList.add("icon", "hidden");
+    disconnectedStatusIcon.innerHTML =
+        '<use href="public/img/sprite.svg#icon_connection_lost"></use>';
     newClientEntry.classList.add("clientEntry");
     if (clientListEntry.selected)
         newClientEntry.classList.add("selected");
     newClientEntry.setAttribute("data-client-id", clientListEntry.clientId);
-    newClientEntry.innerText = clientListEntry.nickname;
+    newClientEntry.append(clientListEntry.nickname, disconnectedStatusIcon);
     return newClientEntry;
 }
+function toggleCleintEntryConnectionStatus(clientId, online) {
+    const clientEntryStatusIcon = refs
+        .clientsList.querySelector(`[data-client-id='${clientId}']`)
+        .querySelector("svg");
+    online
+        ? clientEntryStatusIcon.classList.add("hidden")
+        : clientEntryStatusIcon.classList.remove("hidden");
+}
 function clientsListRender(clientsList) {
-    var _a;
-    var clientsListElements = clientsList.map(function (clientListEntry) {
-        return createClientEntryElement(clientListEntry);
-    });
+    const clientsListElements = clientsList.map((clientListEntry) => createClientEntryElement(clientListEntry));
     refs.clientsList.innerHTML = "";
-    (_a = refs.clientsList).append.apply(_a, clientsListElements);
+    refs.clientsList.append(...clientsListElements);
 }
 
 function jsonParse(string) {
     return JSON.parse(string);
 }
 
-var _a;
-var sessionData = (_a = {},
-    _a["chatRoomId"] = "",
-    _a["clientId"] = "",
-    _a["token"] = "",
-    _a["nickname"] = "",
-    _a["isAdmin"] = "",
-    _a);
+const sessionData = {
+    ["chatRoomId"]: "",
+    ["clientId"]: "",
+    ["token"]: "",
+    ["nickname"]: "",
+    ["isAdmin"]: "",
+};
 
 /** Creating an array instance with callbacks being hooked to defined array methods.
  * @param callbacks : object with keys - names of the array (or custom) methods to be redefined, and values - callbacks, that
@@ -194,73 +151,65 @@ var _ObservableList_list;
  * Each of events is a field name -  callback os the value.
  * The callback is given the actual elements list as an argument on it's call.
  */
-var ObservableList = /** @class */ (function () {
-    function ObservableList(callbacks) {
+class ObservableList {
+    constructor(callbacks) {
         _ObservableList_list.set(this, void 0);
         this.callbacks = callbacks;
         __classPrivateFieldSet(this, _ObservableList_list, [], "f");
     }
-    Object.defineProperty(ObservableList.prototype, "getAll", {
-        get: function () {
-            return __classPrivateFieldGet(this, _ObservableList_list, "f");
-        },
-        enumerable: false,
-        configurable: true
-    });
+    get getAll() {
+        return __classPrivateFieldGet(this, _ObservableList_list, "f");
+    }
     /** Adding element to list */
-    ObservableList.prototype.add = function (element) {
+    add(element) {
         var _a;
-        __classPrivateFieldSet(this, _ObservableList_list, __spreadArray(__spreadArray([], __classPrivateFieldGet(this, _ObservableList_list, "f"), true), [element], false), "f");
-        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onAdd(__classPrivateFieldGet(this, _ObservableList_list, "f"));
-    };
+        __classPrivateFieldSet(this, _ObservableList_list, [...__classPrivateFieldGet(this, _ObservableList_list, "f"), element], "f");
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onAdd(this.getAll);
+    }
     /** Edit list element
-     * @param  { field: keyof T; value: string | undefined } elementToEdit - the field name and field value of the element neede to be edited.
+     * @param  { field: keyof T; value: string | undefined } elementToEdit - the field name and field value of the element needed to be edited.
      * @param { Partial<T>} newData - the field name to change and the new value for it.
      */
-    ObservableList.prototype.edit = function (_a, newData) {
-        var _b;
-        var field = _a.field, value = _a.value;
+    edit({ field, value }, newData) {
+        var _a;
         if (!field || !value)
             return;
-        var indexTochange = __classPrivateFieldGet(this, _ObservableList_list, "f").findIndex(function (element) {
+        const indexTochange = __classPrivateFieldGet(this, _ObservableList_list, "f").findIndex((element) => {
             return element[field] === value;
         });
-        var newList = __spreadArray([], __classPrivateFieldGet(this, _ObservableList_list, "f"), true);
-        newList[indexTochange] = __assign(__assign({}, newList[indexTochange]), newData);
-        __classPrivateFieldSet(this, _ObservableList_list, __spreadArray([], newList, true), "f");
-        (_b = this.callbacks) === null || _b === void 0 ? void 0 : _b.onEdit(__classPrivateFieldGet(this, _ObservableList_list, "f"));
-    };
+        const newList = [...__classPrivateFieldGet(this, _ObservableList_list, "f")];
+        newList[indexTochange] = Object.assign(Object.assign({}, newList[indexTochange]), newData);
+        __classPrivateFieldSet(this, _ObservableList_list, [...newList], "f");
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onEdit(this.getAll);
+    }
     /** Edit all list elements.
-     *  @param {field: keyof T; value: string | undefined }  newData - the field name to change for all list elements and the new value for it.
+     *  @param {Partial<T>} newData - the field name to change for all list elements and the new value for it.
      */
-    ObservableList.prototype.editAll = function (newData) {
+    editAll(newData) {
         var _a;
-        __classPrivateFieldSet(this, _ObservableList_list, __classPrivateFieldGet(this, _ObservableList_list, "f").map(function (entry) { return (__assign(__assign({}, entry), newData)); }), "f");
-        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onEditAll(__classPrivateFieldGet(this, _ObservableList_list, "f"));
-    };
+        __classPrivateFieldSet(this, _ObservableList_list, __classPrivateFieldGet(this, _ObservableList_list, "f").map((entry) => (Object.assign(Object.assign({}, entry), newData))), "f");
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onEditAll(this.getAll);
+    }
     /** Removing one element.
-     *  @param {field: keyof T; value: string | undefined } elementToRemove  - the field name to change for all list elements and the new value for it.
+     *  @param {field: keyof T; value: string | undefined } elementToRemove  - the field name and its value of the element to be removed.
      */
-    ObservableList.prototype.remove = function (_a) {
-        var _b;
-        var field = _a.field, value = _a.value;
-        __classPrivateFieldSet(this, _ObservableList_list, __classPrivateFieldGet(this, _ObservableList_list, "f").filter(function (element) { return element[field] !== value; }), "f");
-        (_b = this.callbacks) === null || _b === void 0 ? void 0 : _b.onRemove(__classPrivateFieldGet(this, _ObservableList_list, "f"));
-    };
+    remove({ field, value }) {
+        var _a;
+        __classPrivateFieldSet(this, _ObservableList_list, __classPrivateFieldGet(this, _ObservableList_list, "f").filter((element) => element[field] !== value), "f");
+        (_a = this.callbacks) === null || _a === void 0 ? void 0 : _a.onRemove(this.getAll);
+    }
     /** Finding one element.
-     *  @param {field: keyof T; value: string | undefined } elementToFind  - the field name to change for all list elements and the new value for it.
+     *  @param {field: keyof T; value: string | undefined } elementToFind  - the field name and its value of the element to be found.
      */
-    ObservableList.prototype.find = function (_a) {
-        var field = _a.field, value = _a.value;
+    find({ field, value }) {
         if (!value)
             return undefined;
-        return __classPrivateFieldGet(this, _ObservableList_list, "f").find(function (element) { return element[field] === value; });
-    };
-    return ObservableList;
-}());
+        return __classPrivateFieldGet(this, _ObservableList_list, "f").find((element) => element[field] === value);
+    }
+}
 _ObservableList_list = new WeakMap();
 
-var clientsListEntries = new ObservableList({
+let clientsListEntries = new ObservableList({
     onAdd: clientsListRender,
     onRemove: clientsListRender,
     onEdit: clientsListRender,
@@ -269,28 +218,31 @@ var clientsListEntries = new ObservableList({
 
 function wsClientRouter(message) {
     var _a;
-    var parsedWsMessage = jsonParse(message);
+    const parsedWsMessage = jsonParse(message);
     switch (parsedWsMessage.method) {
         // Connection is automatically closed by server in case of auth failure, logging out.
         case "client_init_response": {
-            var result = parsedWsMessage.data.result;
+            const { result } = parsedWsMessage.data;
             if (result === "error")
                 logout("Server closed the onnection.");
             break;
         }
         case "new_message_broadcast": {
-            var _b = parsedWsMessage.data, fromClientId = _b.fromClientId, fromClientNickname = _b.fromClientNickname, toClientId = _b.toClientId, message_1 = _b.message;
-            var messagesList = refs.messagesList;
-            var messageType = fromClientId === sessionData.clientId ? "outcoming" : "incoming";
-            var wasScrolledToBottom = Math.abs(messagesList.scrollHeight -
+            const { fromClientId, fromClientNickname, toClientId, message } = parsedWsMessage.data;
+            const { messagesList } = refs;
+            const messageType = fromClientId === sessionData.clientId ? "outcoming" : "incoming";
+            const wasScrolledToBottom = Math.abs(messagesList.scrollHeight -
                 messagesList.clientHeight -
                 messagesList.scrollTop) < 1;
-            var toClientNickname = (_a = clientsListEntries.find({ field: 'clientId', value: toClientId })) === null || _a === void 0 ? void 0 : _a.nickname;
+            const toClientNickname = (_a = clientsListEntries.find({
+                field: "clientId",
+                value: toClientId,
+            })) === null || _a === void 0 ? void 0 : _a.nickname;
             createMessageElement({
-                messageType: messageType,
-                message: message_1,
-                fromClientNickname: fromClientNickname,
-                toClientNickname: toClientNickname,
+                messageType,
+                message,
+                fromClientNickname,
+                toClientNickname,
             });
             // Scrolling on new message only if the messages list was scrolled to bottom on message arrival.
             if (wasScrolledToBottom)
@@ -298,30 +250,39 @@ function wsClientRouter(message) {
             break;
         }
         case "welcome_message": {
-            var message_2 = parsedWsMessage.data.message;
-            createMessageElement({ messageType: "welcome", message: message_2 });
+            const { message } = parsedWsMessage.data;
+            createMessageElement({ messageType: "welcome", message });
             break;
         }
         case "announcement_broadcast": {
-            var _c = parsedWsMessage.data, message_3 = _c.message, reason = _c.reason;
+            const { message, reason } = parsedWsMessage.data;
             switch (reason) {
                 case "client_join": {
-                    var _d = parsedWsMessage.data, nickname = _d.nickname, clientId = _d.clientId;
-                    if (clientsListEntries.find({ field: 'clientId', value: clientId }))
-                        break;
+                    const { nickname, clientId } = parsedWsMessage.data;
                     clientsListEntries.add({
-                        nickname: nickname,
-                        clientId: clientId,
+                        nickname,
+                        clientId,
                     });
                     break;
                 }
+                case "client_connection_down": {
+                    const { clientId } = parsedWsMessage.data;
+                    toggleCleintEntryConnectionStatus(clientId, false);
+                    break;
+                }
+                case "client_connection_up": {
+                    const { clientId } = parsedWsMessage.data;
+                    console.log('client connectopn up');
+                    toggleCleintEntryConnectionStatus(clientId, true);
+                    break;
+                }
                 case "client_exit": {
-                    var clientId = parsedWsMessage.data.clientId;
-                    clientsListEntries.remove({ field: 'clientId', value: clientId });
+                    const { clientId } = parsedWsMessage.data;
+                    clientsListEntries.remove({ field: "clientId", value: clientId });
                     break;
                 }
             }
-            createAnnouncementElement(message_3);
+            createAnnouncementElement(message);
             break;
         }
     }
@@ -331,29 +292,33 @@ function jsonStringify(object) {
     return JSON.stringify(object);
 }
 
-var selectedClienttId;
-var wsClient;
-var pingIntervalId;
+let selectedClienttId;
+let wsClient;
+let pingIntervalId;
 function startPing() {
-    pingIntervalId = setInterval(function () {
-        if (wsClient.readyState == wsClient.OPEN)
+    pingIntervalId = setInterval(() => {
+        if (wsClient.readyState === wsClient.OPEN)
             wsClient.send(jsonStringify({ method: "ping", data: {} }));
     }, 10000);
 }
 function stopPing() {
     clearInterval(pingIntervalId);
 }
+/** Even listener for the click on a client entry is assigned to the whole entries list,
+ * so no need to have a separate listener for each entry.
+ */
 function onClientEntryClick(e) {
     try {
-        var chosenEntry = e.target;
+        const chosenEntry = e.target;
         if (chosenEntry.classList.contains("clientEntry")) {
             selectedClienttId = chosenEntry.dataset.clientId;
-            var clientEntry = clientsListEntries.find({
+            const clientEntry = clientsListEntries.find({
                 field: "clientId",
                 value: selectedClienttId,
             });
-            refs.userInput.value = "@".concat(clientEntry === null || clientEntry === void 0 ? void 0 : clientEntry.nickname, ", ");
-            var isSelected = clientEntry === null || clientEntry === void 0 ? void 0 : clientEntry.selected;
+            refs.userInput.value = `@${clientEntry === null || clientEntry === void 0 ? void 0 : clientEntry.nickname}, `;
+            refs.userInput.selectionEnd = refs.userInput.value.length;
+            const isSelected = clientEntry === null || clientEntry === void 0 ? void 0 : clientEntry.selected;
             clientsListEntries.editAll({ selected: false });
             clientsListEntries.edit({ field: "clientId", value: selectedClienttId }, { selected: !isSelected });
         }
@@ -366,9 +331,9 @@ function sendMessage() {
     var _a, _b;
     if (!((_a = refs.userInput) === null || _a === void 0 ? void 0 : _a.value))
         return;
-    var messageText = ((_b = refs.userInput) === null || _b === void 0 ? void 0 : _b.value.replace(/@.*,/, "")) || "";
+    const messageText = ((_b = refs.userInput) === null || _b === void 0 ? void 0 : _b.value.replace(/@[^,]*,/, "")) || "";
     console.log(messageText);
-    var newClientMessage = {
+    const newClientMessage = {
         method: "new_message",
         data: {
             chatRoomId: sessionData.chatRoomId,
@@ -377,7 +342,7 @@ function sendMessage() {
             message: messageText,
         },
     };
-    var message = jsonStringify(newClientMessage);
+    const message = jsonStringify(newClientMessage);
     refs.userInput.value = "";
     clientsListEntries.editAll({ selected: false });
     wsClient.send(message);
@@ -392,32 +357,23 @@ function inviteLinkCopy() {
     createAnnouncementElement("Chat room link is copied to clipboard.");
 }
 function toggleSideBar() {
-    var display = getComputedStyle(refs.sideBar).display;
+    const display = getComputedStyle(refs.sideBar).display;
     refs.sideBar.style.display = display === "flex" ? "none" : "flex";
 }
 function exitChat() {
-    return __awaiter(this, void 0, void 0, function () {
-        var headers, chatRoomId, clientId, body, requestOptions;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    headers = new Headers({
-                        Authorization: "Bearer " + sessionData.token,
-                    });
-                    chatRoomId = sessionData.chatRoomId, clientId = sessionData.clientId;
-                    body = jsonStringify({ chatRoomId: chatRoomId, clientId: clientId });
-                    requestOptions = { method: "POST", headers: headers, body: body };
-                    return [4 /*yield*/, fetch("api/exitChatRoom", requestOptions)];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const headers = new Headers({
+            Authorization: "Bearer " + sessionData.token,
         });
+        const { chatRoomId, clientId } = sessionData;
+        const body = jsonStringify({ chatRoomId, clientId });
+        const requestOptions = { method: "POST", headers, body };
+        yield fetch("api/exitChatRoom", requestOptions);
     });
 }
-function sessionStorageInit() {
-    Object.keys(sessionData).forEach(function (item) {
-        sessionData[item] = sessionStorage.getItem(item);
+function localStorageInit() {
+    Object.keys(sessionData).forEach((item) => {
+        sessionData[item] = localStorage.getItem(item);
         if (!sessionData[item])
             throw Error(item + " data is missing. Logging out.");
     });
@@ -443,81 +399,55 @@ function eventListenersInit() {
 function wsClientInit() {
     wsClient = new WebSocket("wss://" + window.location.host);
     // Sending the auth data on opening the socket connection.
-    var chatRoomId = sessionData.chatRoomId, clientId = sessionData.clientId, token = sessionData.token;
-    wsClient.onopen = function (e) {
-        return wsClient.send(jsonStringify({
-            method: "client_init_request",
-            data: { chatRoomId: chatRoomId, clientId: clientId, token: token },
-        }));
-    };
+    const { chatRoomId, clientId, token } = sessionData;
+    wsClient.onopen = (e) => wsClient.send(jsonStringify({
+        method: "client_init_request",
+        data: { chatRoomId, clientId, token },
+    }));
     startPing();
     // Incoming messages are being handled depending on their 'method' field in a dedicated router.
-    wsClient.onmessage = function (e) {
+    wsClient.onmessage = (e) => {
         wsClientRouter(e.data);
     };
-    wsClient.onclose = function (event) {
+    wsClient.onclose = (event) => {
         stopPing();
         logout("Socket connection closed. " + event.reason);
     };
 }
 // Sending the auth data on opening the page load.
 function chatRoomAuthorization() {
-    return __awaiter(this, void 0, void 0, function () {
-        var headers, chatRoomId, clientId, body, requestOptions, response, responceText, _a, isAdmin, clientsList;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    headers = new Headers({
-                        Authorization: "Bearer " + sessionData.token,
-                    });
-                    chatRoomId = sessionData.chatRoomId, clientId = sessionData.clientId;
-                    body = jsonStringify({ chatRoomId: chatRoomId, clientId: clientId });
-                    requestOptions = { method: "POST", headers: headers, body: body };
-                    return [4 /*yield*/, fetch("api/chatRoomAuthorization", requestOptions)];
-                case 1:
-                    response = _b.sent();
-                    if (!(response.status === 401)) return [3 /*break*/, 3];
-                    return [4 /*yield*/, response.text()];
-                case 2:
-                    responceText = _b.sent();
-                    throw new Error("Authorization failure. " + responceText);
-                case 3: return [4 /*yield*/, response.json()];
-                case 4:
-                    _a = _b.sent(), isAdmin = _a.isAdmin, clientsList = _a.clientsList;
-                    clientsList.forEach(function (client) {
-                        clientsListEntries.add(client);
-                    });
-                    sessionStorage.setItem("isAdmin", isAdmin);
-                    sessionData.isAdmin = isAdmin;
-                    return [2 /*return*/];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const headers = new Headers({
+            Authorization: "Bearer " + sessionData.token,
         });
+        const { chatRoomId, clientId } = sessionData;
+        const body = jsonStringify({ chatRoomId, clientId });
+        const requestOptions = { method: "POST", headers, body };
+        const response = yield fetch("api/chatRoomAuthorization", requestOptions);
+        if (response.status === 401) {
+            const responceText = yield response.text();
+            throw new Error("Authorization failure. " + responceText);
+        }
+        const { isAdmin, clientsList } = yield response.json();
+        clientsList.forEach((client) => clientsListEntries.add(client));
+        localStorage.setItem("isAdmin", isAdmin);
+        sessionData.isAdmin = isAdmin;
     });
 }
 function chatRoomInit() {
-    return __awaiter(this, void 0, void 0, function () {
-        var e_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    sessionStorageInit();
-                    return [4 /*yield*/, chatRoomAuthorization()];
-                case 1:
-                    _a.sent();
-                    adminComponentsInit();
-                    wsClientInit();
-                    eventListenersInit();
-                    return [3 /*break*/, 3];
-                case 2:
-                    e_1 = _a.sent();
-                    logout(e_1.message);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
-            }
-        });
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            localStorageInit();
+            yield chatRoomAuthorization();
+            adminComponentsInit();
+            wsClientInit();
+            eventListenersInit();
+        }
+        catch (e) {
+            logout(e.message);
+        }
     });
 }
-window.onload = function () {
+window.onload = () => {
     chatRoomInit();
 };

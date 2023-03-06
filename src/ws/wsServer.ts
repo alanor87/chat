@@ -8,7 +8,10 @@ export function wsServerInit() {
 
   // Connection - server gets the handshake from the client.
   wsServer.on("connection", (currentConnection, request) => {
-    console.log("WS connection. Origin : ", color("yellow", request?.headers.origin));
+    console.log(
+      "WS connection. Origin : ",
+      color("yellow", request?.headers.origin)
+    );
     // Preventing XSRF attacks - at least to my understanding))
     if (request?.headers.origin !== process.env.BASE_URL) {
       console.log("Origin differs, closing connection");

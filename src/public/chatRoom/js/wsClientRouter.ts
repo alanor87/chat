@@ -3,6 +3,7 @@ import { logout } from "../../../helpers/logout.js";
 import {
   createMessageElement,
   createAnnouncementElement,
+  toggleCleintEntryConnectionStatus,
 } from "./componentsRender.js";
 import { refs } from "./refs";
 import { jsonParse as p } from "../../../helpers/jsonParse.js";
@@ -31,7 +32,10 @@ export function wsClientRouter(message: string) {
             messagesList!.clientHeight -
             messagesList!.scrollTop
         ) < 1;
-        const toClientNickname = clientsListEntries.find({field : 'clientId', value :toClientId})?.nickname;
+      const toClientNickname = clientsListEntries.find({
+        field: "clientId",
+        value: toClientId,
+      })?.nickname;
       createMessageElement({
         messageType,
         message,
@@ -55,17 +59,26 @@ export function wsClientRouter(message: string) {
       switch (reason) {
         case "client_join": {
           const { nickname, clientId } = parsedWsMessage.data;
-          if (clientsListEntries.find({field : 'clientId', value : clientId}))
-            break;
           clientsListEntries.add({
             nickname,
             clientId,
           });
           break;
         }
+        case "client_connection_down": {
+          const { clientId } = parsedWsMessage.data;
+          toggleCleintEntryConnectionStatus(clientId, false);
+          break;
+        }
+        case "client_connection_up": {
+          const { clientId } = parsedWsMessage.data;
+          console.log('client connectopn up');
+          toggleCleintEntryConnectionStatus(clientId, true);
+          break;
+        }
         case "client_exit": {
           const { clientId } = parsedWsMessage.data;
-          clientsListEntries.remove({field : 'clientId', value : clientId});
+          clientsListEntries.remove({ field: "clientId", value: clientId });
           break;
         }
         default: {

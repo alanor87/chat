@@ -8,10 +8,9 @@ class ChatClient {
         this.clientId = clientId;
         this.nickname = nickname;
         this.token = token;
+        this.clientDeleteTimeoutId = undefined;
     }
-    addConnection(connection) {
-        if (this.currentConnection)
-            return;
+    setConnection(connection) {
         this.currentConnection = connection;
     }
 }

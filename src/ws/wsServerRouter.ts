@@ -19,29 +19,41 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
 
         // Client validation success, presuming that room and client exist -  and the token is correct.
         const chatRoom = getChatRoomById(chatRoomId);
+        const client = chatRoom!.getClientById(clientId);
 
         const responseSuccess: WsMessageType = {
           method: "client_init_response",
           data: { result: "success" },
         };
 
-        // Checking if the client already has connection - just reloaded the page.
-        if (chatRoom?.getClientById(clientId)?.currentConnection) {
+        /**  If the client already has the connection on making client_init_request - 
+         * means, that the connection was droped with reloading/closing tab or browser,
+         * and now was restored. In this case the old dropped connection is replaced for
+         * the new, and the delete client timeout is being cleared.
+        */
+        if (client?.currentConnection) {
           console.log(
             "Client " +
               color("yellow", clientId) +
               " restored dropped connection."
           );
-          const client = chatRoom!.getClientById(clientId);
-          client!.currentConnection = currentConnection;
+          chatRoom!.deleteClientTimeoutClear(client!.clientDeleteTimeoutId)
+          chatRoom!.setClientConnection(clientId, currentConnection);
           client!.currentConnection!.send(s(responseSuccess));
+          const announcementMessage = {
+            method: 'announcement_broadcast',
+            data : {
+              message: client?.nickname + ' restored connection.', reason: 'client_connection_up', clientId
+            }
+          }
+          chatRoom!.broadcast(announcementMessage, [clientId]);
           return;
+        } else {
+          /** The socket connection is added to the corresponding client object in the chosen room. */ 
+          chatRoom!.setClientConnection(clientId, currentConnection);
         }
 
-        // The socket connection is added to the corresponding client object in the chosen room.
-        chatRoom!.addClientConnection(clientId, currentConnection);
-
-        const nickname = chatRoom!.getClientById(clientId)!.nickname;
+        const nickname = client?.nickname;
 
         const newClientBroadcastMessage: WsMessageType = {
           method: "announcement_broadcast",
@@ -61,7 +73,8 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
           },
         };
 
-        chatRoom!.broadcast(newClientBroadcastMessage);
+        // Telling everyone that new client joined.
+        chatRoom!.broadcast(newClientBroadcastMessage, [clientId]);
 
         currentConnection.send(s(newClientWelcomeMessage));
         currentConnection.send(s(responseSuccess));
@@ -97,12 +110,15 @@ function wsServerRouter(currentConnection: WebSocket, wsMessage: any) {
           if (!currentConnection) return;
           currentConnection.send(s(newBroadcastMessage));
         });
-      } catch (e) {
+      } catch (e: any) {
+        console.log(e.message);
       } finally {
         break;
       }
     }
 
+    /* This message is being fired on the client every 10 seconds. For now it is just for the purpose 
+       of keeping the server on Heroku hosting up and runnung while at least one client is running. */
     case "ping": {
       return;
     }

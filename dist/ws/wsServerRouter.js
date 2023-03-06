@@ -4,7 +4,6 @@ import { clientDataValidation } from "../helpers/clientDataValidation.js";
 import { getChatRoomById } from "../http/chatRoom.js";
 import { color } from "../helpers/logging.js";
 function wsServerRouter(currentConnection, wsMessage) {
-    var _a;
     const parsedWsMessage = p(wsMessage);
     const { method } = parsedWsMessage;
     switch (method) {
@@ -16,23 +15,37 @@ function wsServerRouter(currentConnection, wsMessage) {
                 clientDataValidation(chatRoomId, clientId, token);
                 // Client validation success, presuming that room and client exist -  and the token is correct.
                 const chatRoom = getChatRoomById(chatRoomId);
+                const client = chatRoom.getClientById(clientId);
                 const responseSuccess = {
                     method: "client_init_response",
                     data: { result: "success" },
                 };
-                // Checking if the client already has connection - just reloaded the page.
-                if ((_a = chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.getClientById(clientId)) === null || _a === void 0 ? void 0 : _a.currentConnection) {
+                /**  If the client already has the connection on making client_init_request -
+                 * means, that the connection was droped with reloading/closing tab or browser,
+                 * and now was restored. In this case the old dropped connection is replaced for
+                 * the new, and the delete client timeout is being cleared.
+                */
+                if (client === null || client === void 0 ? void 0 : client.currentConnection) {
                     console.log("Client " +
                         color("yellow", clientId) +
                         " restored dropped connection.");
-                    const client = chatRoom.getClientById(clientId);
-                    client.currentConnection = currentConnection;
+                    chatRoom.deleteClientTimeoutClear(client.clientDeleteTimeoutId);
+                    chatRoom.setClientConnection(clientId, currentConnection);
                     client.currentConnection.send(s(responseSuccess));
+                    const announcementMessage = {
+                        method: 'announcement_broadcast',
+                        data: {
+                            message: (client === null || client === void 0 ? void 0 : client.nickname) + ' restored connection.', reason: 'client_connection_up', clientId
+                        }
+                    };
+                    chatRoom.broadcast(announcementMessage, [clientId]);
                     return;
                 }
-                // The socket connection is added to the corresponding client object in the chosen room.
-                chatRoom.addClientConnection(clientId, currentConnection);
-                const nickname = chatRoom.getClientById(clientId).nickname;
+                else {
+                    /** The socket connection is added to the corresponding client object in the chosen room. */
+                    chatRoom.setClientConnection(clientId, currentConnection);
+                }
+                const nickname = client === null || client === void 0 ? void 0 : client.nickname;
                 const newClientBroadcastMessage = {
                     method: "announcement_broadcast",
                     data: {
@@ -48,7 +61,8 @@ function wsServerRouter(currentConnection, wsMessage) {
                         message: "Welcome, " + nickname + ". Your id is : " + clientId + ".",
                     },
                 };
-                chatRoom.broadcast(newClientBroadcastMessage);
+                // Telling everyone that new client joined.
+                chatRoom.broadcast(newClientBroadcastMessage, [clientId]);
                 currentConnection.send(s(newClientWelcomeMessage));
                 currentConnection.send(s(responseSuccess));
             }
@@ -82,11 +96,14 @@ function wsServerRouter(currentConnection, wsMessage) {
                 });
             }
             catch (e) {
+                console.log(e.message);
             }
             finally {
                 break;
             }
         }
+        /* This message is being fired on the client every 10 seconds. For now it is just for the purpose
+           of keeping the server on Heroku hosting up and runnung while at least one client is running. */
         case "ping": {
             return;
         }

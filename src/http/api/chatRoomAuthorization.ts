@@ -14,15 +14,15 @@ function chatRoomAuthorization(res: ServerResponse, reqData: RequestDataType) {
     // Throws in case of failure in check.
     clientDataValidation(chatRoomId, clientId, token);
     const chatRoom = getChatRoomById(chatRoomId);
-    const isAdmin = chatRoom?.isAdmin(clientId, token)
-      ? "isAdmin"
-      : "notAdmin";
+    const isAdmin = chatRoom?.isAdmin(clientId, token) ? "isAdmin" : "notAdmin";
 
-    // Sending the list of clinets on the moment of current clinet authorization
-    const clientsList = chatRoom?.clients.map(({ clientId, nickname }) => ({
-      clientId,
-      nickname,
-    }));
+    // Sending the list of clinets on the moment of current clinet authorization, omitting the client that is being authorized.
+    const clientsList = chatRoom?.clients
+      .filter((client) => client.clientId !== clientId)
+      .map(({ clientId, nickname }) => ({
+        clientId,
+        nickname,
+      }));
     res.writeHead(200).end(s({ isAdmin, clientsList }));
   } catch (e: any) {
     console.log(
@@ -31,7 +31,6 @@ function chatRoomAuthorization(res: ServerResponse, reqData: RequestDataType) {
         "Client id": clientId,
       })
     );
-    console.log(e);
 
     res.writeHead(401).end(e.message);
   }

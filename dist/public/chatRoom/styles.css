@@ -140,6 +140,8 @@ svg.icon.active {
   padding: 10px;
 }
 .clientsList .clientEntry {
+  display: flex;
+  justify-content: space-between;
   padding: 5px;
   cursor: pointer;
 }
@@ -148,6 +150,12 @@ svg.icon.active {
 }
 .clientsList .clientEntry.selected {
   background-color: var(--color3);
+}
+.clientsList .clientEntry svg {
+  color: var(--color4);
+}
+.clientsList .clientEntry svg.hidden {
+  display: none;
 }
 
 .messagesList {

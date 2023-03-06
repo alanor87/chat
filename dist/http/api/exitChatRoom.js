@@ -12,12 +12,9 @@ function exitChatRoom(res, reqData) {
                 message: (client === null || client === void 0 ? void 0 : client.nickname) + ' has left the chat room.', reason: 'client_exit', clientId
             }
         };
+        chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.deleteClientTimeoutClear(clientId);
         chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.broadcast(announcementMessage);
         chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.deleteClient(clientId);
-        if (chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.isAdmin(clientId, token)) {
-            deleteChatRoom(chatRoomId, "Admin has left, chat room is deleted.");
-            return;
-        }
         if ((chatRoom === null || chatRoom === void 0 ? void 0 : chatRoom.clients.length) === 0) {
             deleteChatRoom(chatRoomId, "Chat room " + chatRoom.id + " is empty and is being deleted.");
             return;
